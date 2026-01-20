@@ -1,0 +1,31 @@
+# OCI Object Storage Backend Configuration (Native OCI Backend)
+#
+# This configures Terraform to store state remotely in OCI Object Storage (Always Free).
+#
+# SETUP:
+# 1. Run: mise run backend-setup
+# 2. Copy this file: cp backend.tf.example backend.tf
+# 3. Replace bucket and namespace with outputs from backend-setup
+# 4. Credentials are loaded from .env automatically
+# 5. Run: terraform init -migrate-state
+#
+# SECURITY: All secrets stay in .env via TF_VAR_* variables!
+
+terraform {
+  backend "oci" {
+    # Replace these 2 values with output from 'mise run backend-setup'
+    bucket    = "unifi-terraform-state"  # Output: bucket_name
+    namespace = "YOUR_NAMESPACE"         # Output: namespace
+
+    # State file path (keep as-is or customize)
+    key = "terraform.tfstate"
+  }
+}
+
+# AUTHENTICATION:
+# Credentials are automatically loaded from .env using TF_VAR_* variables:
+# - TF_VAR_tenancy_ocid
+# - TF_VAR_user_ocid
+# - TF_VAR_fingerprint
+# - TF_VAR_private_key_path
+# - TF_VAR_region

@@ -1,0 +1,56 @@
+# Environment files
+.env
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Backend configuration
+terraform/backend.tf
+
+# Ansible (legacy - kept for reference if needed)
+*.retry
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SSH Keys
+*.pem
+*.key
+id_rsa*
+!*.pub.example
+
+# Oracle Cloud
+.oci/
+oci_api_key.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+
+# Logs
+*.log

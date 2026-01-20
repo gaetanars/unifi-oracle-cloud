@@ -1,0 +1,131 @@
+# Mise configuration for UniFi Oracle Cloud deployment
+# https://mise.jdx.dev
+
+[tools]
+terraform = "1.14.3"
+
+[env]
+_.file = ".env"
+
+[tasks.init]
+description = "Initialize Terraform"
+run = "cd terraform && terraform init"
+
+[tasks.migrate_backend]
+description = "Migrate Terraform state"
+run = "cd terraform && terraform init -migrate-state"
+
+[tasks.upgrade]
+description = "Initialize Terraform with upgrade"
+run = "cd terraform && terraform init --upgrade"
+
+[tasks.plan]
+description = "Plan Terraform deployment"
+run = "cd terraform && terraform plan"
+
+[tasks.deploy]
+description = "🚀 Deploy complete UniFi infrastructure (ONE COMMAND!)"
+run = "cd terraform && terraform apply -auto-approve"
+
+[tasks.apply]
+description = "Apply Terraform deployment with confirmation"
+run = "cd terraform && terraform apply"
+
+[tasks.destroy]
+description = "Destroy Terraform infrastructure"
+run = "cd terraform && terraform destroy"
+
+[tasks.status]
+description = "Check UniFi installation status"
+run = """
+  IP=$(cd terraform && terraform output -raw instance_public_ip 2>/dev/null)
+  if [ -z "$IP" ]; then
+    echo "❌ Infrastructure not deployed yet. Run 'mise run deploy' first."
+    exit 1
+  fi
+  echo "🔍 Checking installation status on $IP..."
+  ssh -o StrictHostKeyChecking=no ubuntu@$IP 'cat /var/log/unifi-installation-complete.txt 2>/dev/null || echo "⏳ Installation still in progress..."'
+"""
+
+[tasks.logs]
+description = "View UniFi installation logs in real-time"
+run = """
+  IP=$(cd terraform && terraform output -raw instance_public_ip 2>/dev/null)
+  if [ -z "$IP" ]; then
+    echo "❌ Infrastructure not deployed yet. Run 'mise run deploy' first."
+    exit 1
+  fi
+  echo "📋 Showing installation logs from $IP (Ctrl+C to exit)..."
+  ssh -o StrictHostKeyChecking=no ubuntu@$IP 'tail -f /var/log/unifi-install.log'
+"""
+
+[tasks.ssh]
+description = "SSH into the UniFi server"
+run = """
+  IP=$(cd terraform && terraform output -raw instance_public_ip 2>/dev/null)
+  if [ -z "$IP" ]; then
+    echo "❌ Infrastructure not deployed yet. Run 'mise run deploy' first."
+    exit 1
+  fi
+  echo "🔐 Connecting to $IP..."
+  ssh ubuntu@$IP
+"""
+
+[tasks.url]
+description = "Show UniFi web interface URL"
+run = """
+  IP=$(cd terraform && terraform output -raw instance_public_ip 2>/dev/null)
+  if [ -z "$IP" ]; then
+    echo "❌ Infrastructure not deployed yet. Run 'mise run deploy' first."
+    exit 1
+  fi
+  echo ""
+  echo "🌐 UniFi OS Web Interface:"
+  echo "   https://$IP:11443"
+  echo ""
+"""
+
+[tasks.backend-setup]
+description = "🗄️  Setup OCI Object Storage backend for tfstate (recommended)"
+run = """
+  echo "🗄️  Setting up OCI Object Storage backend for Terraform state..."
+  echo ""
+  echo "This will create a bucket in OCI Object Storage (Always Free)."
+  echo ""
+
+  cd terraform/backend-setup
+
+  # Check if .env exists
+  if [ ! -f .env ]; then
+    echo "Creating symlink to main .env..."
+    ln -s ../../.env .env
+  fi
+
+  terraform init
+  terraform apply
+
+  echo ""
+  echo "📋 Follow the instructions above to complete backend configuration."
+"""
+
+[tasks.setup]
+description = "Initial setup - run this first"
+run = [
+  "mise install",
+  "echo '✅ Tools installed successfully'",
+  "echo ''",
+  "echo '📝 Next steps:'",
+  "echo '1. Copy and edit configuration:'",
+  "echo '   cp .env.example .env'",
+  "echo '   nano .env  # Edit with your Oracle Cloud credentials'",
+  "echo ''",
+  "echo '2. (Optional but recommended) Setup remote state:'",
+  "echo '   mise run backend-setup'",
+  "echo ''",
+  "echo '3. Initialize and deploy:'",
+  "echo '   mise run init'",
+  "echo '   mise run deploy'",
+  "echo ''",
+  "echo '💡 Mise automatically loads .env - no need to source it manually!'",
+  "echo ''"
+]
