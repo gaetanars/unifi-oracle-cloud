@@ -63,6 +63,21 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
+  # HTTP (80/tcp) - For Let's Encrypt HTTP-01 Challenge
+  dynamic "ingress_security_rules" {
+    for_each = var.enable_port_http ? [1] : []
+    content {
+      protocol  = "6" # TCP
+      source    = "0.0.0.0/0"
+      stateless = false
+
+      tcp_options {
+        min = 80
+        max = 80
+      }
+    }
+  }
+
   # UniFi Device Adoption (8080/tcp) - Restricted to allowed_adoption_cidrs
   dynamic "ingress_security_rules" {
     for_each = var.enable_port_device_adoption ? var.allowed_adoption_cidrs : []

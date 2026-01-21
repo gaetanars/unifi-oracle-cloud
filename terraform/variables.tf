@@ -168,6 +168,12 @@ variable "enable_port_mobile_speedtest" {
   default     = true
 }
 
+variable "enable_port_http" {
+  description = "Enable HTTP (80/tcp) - Required for HTTP-01 challenge (Let's Encrypt SSL certificates)"
+  type        = bool
+  default     = false
+}
+
 variable "enable_port_device_adoption" {
   description = "Enable Device Adoption (8080/tcp) - Required for device inform/adoption (restrict IPs via allowed_adoption_cidrs)"
   type        = bool

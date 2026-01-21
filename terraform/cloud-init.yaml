@@ -58,6 +58,11 @@ write_files:
       description=UniFi OS Server - Complete suite (Network, Protect, Talk, Access)
       ports=3478/udp|5005/tcp|5514/tcp|6789/tcp|8080/tcp|8443/tcp|8843/tcp|8444/tcp|8880/tcp|8881/tcp|8882/tcp|9543/tcp|10003/tcp|11443/tcp
 
+      [UniFi-HTTP]
+      title=UniFi HTTP
+      description=HTTP port for Let's Encrypt HTTP-01 challenge
+      ports=80/tcp
+
 # Commands to run after package installation
 runcmd:
   # Download and install UniFi OS Server
@@ -77,4 +82,5 @@ runcmd:
   - ufw app update all
   - ufw allow OpenSSH comment 'SSH - IP restrictions in OCI Security Lists'
   - ufw allow UniFi comment 'UniFi OS Server - All ports'
+  - ufw allow 'UniFi-HTTP' comment 'HTTP for Lets Encrypt challenges'
   - echo "y" | ufw enable

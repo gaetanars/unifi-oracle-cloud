@@ -268,6 +268,7 @@ Les mises à jour de sécurité sont **activées par défaut** via `unattended-u
 |------|----------|---------|--------|------------|
 | 22 | TCP | SSH | ✅ | Activé (restriction IP) |
 | 53 | TCP/UDP | DNS | ✅ | Géré par l'OS |
+| 80 | TCP | HTTP (Let's Encrypt HTTP-01 Challenge) | ❌ | Désactivé |
 | 3478 | UDP | STUN for device adoption | ✅ | Activé |
 | 5005 | TCP | UniFi Port (Unknown use) | ❓ | Désactivé |
 | 5514 | UDP | Remote Syslog Capture | ❌ | Désactivé |
@@ -294,6 +295,9 @@ Les mises à jour de sécurité sont **activées par défaut** via `unattended-u
 Chaque port peut être activé/désactivé individuellement dans `.env` :
 
 ```bash
+# Exemple : Activer le port HTTP pour Let's Encrypt (HTTP-01 challenge)
+TF_VAR_enable_port_http=true
+
 # Exemple : Désactiver le port console après configuration
 TF_VAR_enable_port_websockets=false
 
