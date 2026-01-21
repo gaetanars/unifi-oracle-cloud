@@ -253,7 +253,7 @@ Les mises à jour de sécurité sont **activées par défaut** via `unattended-u
 **Stratégie à deux niveaux** :
 
 1. **OCI Security Lists** (Niveau 1 - Cloud) ⭐
-   - Filtrage IP pour SSH et Adoption (via `allowed_ssh_cidrs`, `allowed_adoption_cidrs`)
+   - Filtrage IP pour SSH et tous les ports UniFi (via `allowed_ssh_cidrs`, `allowed_unifi_cidrs`)
    - Protection avant même d'atteindre l'instance
    - Géré par Terraform (source unique de vérité)
 
@@ -340,10 +340,10 @@ Dans `.env` :
 
 ```bash
 # Autoriser uniquement votre réseau local
-TF_VAR_allowed_adoption_cidrs=["192.168.1.0/24"]
+TF_VAR_allowed_unifi_cidrs=["192.168.1.0/24"]
 
 # Ou plusieurs réseaux
-TF_VAR_allowed_adoption_cidrs=["192.168.1.0/24","10.0.0.0/8"]
+TF_VAR_allowed_unifi_cidrs=["192.168.1.0/24","10.0.0.0/8"]
 ```
 
 Puis appliquer :

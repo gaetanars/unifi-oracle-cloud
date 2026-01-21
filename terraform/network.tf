@@ -78,9 +78,9 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Device Adoption (8080/tcp) - Restricted to allowed_adoption_cidrs
+  # UniFi Device Adoption (8080/tcp) - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_device_adoption ? var.allowed_adoption_cidrs : []
+    for_each = var.enable_port_device_adoption ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6" # TCP
       source    = ingress_security_rules.value
@@ -93,12 +93,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi STUN Discovery (3478/udp) - Required for remote access
+  # UniFi STUN Discovery (3478/udp) - Required for remote access - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_stun ? [1] : []
+    for_each = var.enable_port_stun ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "17" # UDP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       udp_options {
@@ -108,12 +108,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Port 5005 (5005/tcp) - Unknown use
+  # UniFi Port 5005 (5005/tcp) - Unknown use - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_unifi_5005 ? [1] : []
+    for_each = var.enable_port_unifi_5005 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6" # TCP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -123,12 +123,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Remote Syslog (5514/udp) - Optional
+  # UniFi Remote Syslog (5514/udp) - Optional - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_remote_logging ? [1] : []
+    for_each = var.enable_port_remote_logging ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "17" # UDP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       udp_options {
@@ -138,12 +138,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Mobile Speed Test (6789/tcp) - Required for mobile app speed test
+  # UniFi Mobile Speed Test (6789/tcp) - Required for mobile app speed test - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_mobile_speedtest ? [1] : []
+    for_each = var.enable_port_mobile_speedtest ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -153,12 +153,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Application GUI/API (8443/tcp) - Required for web UI on UniFi Console
+  # UniFi Application GUI/API (8443/tcp) - Required for web UI on UniFi Console - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_https_portal ? [1] : []
+    for_each = var.enable_port_https_portal ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -168,12 +168,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi HTTPS Guest Portal (8843/tcp) - Optional for guest portal HTTPS
+  # UniFi HTTPS Guest Portal (8843/tcp) - Optional for guest portal HTTPS - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_https_guest_portal ? [1] : []
+    for_each = var.enable_port_https_guest_portal ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -183,12 +183,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Secure Portal for Hotspot (8444/tcp) - Optional for secure hotspot portal
+  # UniFi Secure Portal for Hotspot (8444/tcp) - Optional for secure hotspot portal - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_secure_portal ? [1] : []
+    for_each = var.enable_port_secure_portal ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -198,12 +198,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Hotspot Portal Redirection (8880/tcp) - Optional, for guest portal HTTP redirect
+  # UniFi Hotspot Portal Redirection (8880/tcp) - Optional, for guest portal HTTP redirect - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_hotspot_8880 ? [1] : []
+    for_each = var.enable_port_hotspot_8880 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -213,12 +213,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Hotspot Portal Redirection (8881/tcp) - Optional, for guest portal HTTP redirect
+  # UniFi Hotspot Portal Redirection (8881/tcp) - Optional, for guest portal HTTP redirect - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_hotspot_8881 ? [1] : []
+    for_each = var.enable_port_hotspot_8881 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -228,12 +228,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Hotspot Portal Redirection (8882/tcp) - Optional, for guest portal HTTP redirect
+  # UniFi Hotspot Portal Redirection (8882/tcp) - Optional, for guest portal HTTP redirect - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_hotspot_8882 ? [1] : []
+    for_each = var.enable_port_hotspot_8882 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -243,12 +243,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Port 9543 (9543/tcp) - Unknown use
+  # UniFi Port 9543 (9543/tcp) - Unknown use - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_unifi_9543 ? [1] : []
+    for_each = var.enable_port_unifi_9543 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6" # TCP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -258,12 +258,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Device Discovery (10001/udp) - Required for device discovery during adoption
+  # UniFi Device Discovery (10001/udp) - Required for device discovery during adoption - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_device_discovery ? [1] : []
+    for_each = var.enable_port_device_discovery ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "17" # UDP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       udp_options {
@@ -273,12 +273,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Port 10003 (10003/udp) - Unknown use
+  # UniFi Port 10003 (10003/udp) - Unknown use - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_unifi_10003 ? [1] : []
+    for_each = var.enable_port_unifi_10003 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "17" # UDP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       udp_options {
@@ -288,12 +288,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Port 11084 (11084/tcp) - Unknown use
+  # UniFi Port 11084 (11084/tcp) - Unknown use - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_unifi_11084 ? [1] : []
+    for_each = var.enable_port_unifi_11084 ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6" # TCP
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {
@@ -303,12 +303,12 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Application GUI/API (11443/tcp) - Required for web browser access and Remote Management
+  # UniFi Application GUI/API (11443/tcp) - Required for web browser access and Remote Management - Restricted to allowed_unifi_cidrs
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_websockets ? [1] : []
+    for_each = var.enable_port_websockets ? var.allowed_unifi_cidrs : []
     content {
       protocol  = "6"
-      source    = "0.0.0.0/0"
+      source    = ingress_security_rules.value
       stateless = false
 
       tcp_options {

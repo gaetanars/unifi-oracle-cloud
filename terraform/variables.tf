@@ -99,8 +99,8 @@ variable "allowed_ssh_cidrs" {
   default     = ["0.0.0.0/0"] # Change this to your IP for better security
 }
 
-variable "allowed_adoption_cidrs" {
-  description = "List of CIDR blocks allowed to access UniFi Adoption port (8080)"
+variable "allowed_unifi_cidrs" {
+  description = "List of CIDR blocks allowed to access UniFi ports (restrict to your network IPs for better security)"
   type        = list(string)
   default     = ["0.0.0.0/0"] # Restrict this to your network IPs for better security
 }
@@ -141,7 +141,7 @@ variable "auto_updates" {
 #
 # Recommendation: Enable only the ports you need.
 # - After initial setup, disable port 11443 if using Unifi OS Server app
-# - Port 8080 should be restricted to your network IPs (use allowed_adoption_cidrs)
+# - UniFi ports should be restricted to your network IPs (use allowed_unifi_cidrs)
 # ============================================================================
 
 variable "enable_port_stun" {
@@ -175,7 +175,7 @@ variable "enable_port_http" {
 }
 
 variable "enable_port_device_adoption" {
-  description = "Enable Device Adoption (8080/tcp) - Required for device inform/adoption (restrict IPs via allowed_adoption_cidrs)"
+  description = "Enable Device Adoption (8080/tcp) - Required for device inform/adoption (restrict IPs via allowed_unifi_cidrs)"
   type        = bool
   default     = true
 }
