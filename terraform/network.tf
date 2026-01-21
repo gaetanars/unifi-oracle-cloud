@@ -93,11 +93,11 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Controller Discovery (5005/tcp) - Required for device discovery
+  # UniFi Port 5005 (5005/tcp) - Unknown use
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_controller_discovery ? [1] : []
+    for_each = var.enable_port_unifi_5005 ? [1] : []
     content {
-      protocol  = "6"
+      protocol  = "6" # TCP
       source    = "0.0.0.0/0"
       stateless = false
 
@@ -108,15 +108,15 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi Remote Logging (5514/tcp) - Optional
+  # UniFi Remote Syslog (5514/udp) - Optional
   dynamic "ingress_security_rules" {
     for_each = var.enable_port_remote_logging ? [1] : []
     content {
-      protocol  = "6"
+      protocol  = "17" # UDP
       source    = "0.0.0.0/0"
       stateless = false
 
-      tcp_options {
+      udp_options {
         min = 5514
         max = 5514
       }
@@ -138,7 +138,7 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi HTTPS Portal (8443/tcp) - Required for web UI
+  # UniFi Application GUI/API (8443/tcp) - Required for web UI on UniFi Console
   dynamic "ingress_security_rules" {
     for_each = var.enable_port_https_portal ? [1] : []
     content {
@@ -168,9 +168,9 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi HTTPS Guest Redirect (8444/tcp) - Optional for guest portal HTTPS redirect
+  # UniFi Secure Portal for Hotspot (8444/tcp) - Optional for secure hotspot portal
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_https_guest_redirect ? [1] : []
+    for_each = var.enable_port_secure_portal ? [1] : []
     content {
       protocol  = "6"
       source    = "0.0.0.0/0"
@@ -183,9 +183,9 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi HTTP Redirect (8880/tcp) - Optional guest portal
+  # UniFi Hotspot Portal Redirection (8880/tcp) - Optional, for guest portal HTTP redirect
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_http_redirect ? [1] : []
+    for_each = var.enable_port_hotspot_8880 ? [1] : []
     content {
       protocol  = "6"
       source    = "0.0.0.0/0"
@@ -198,9 +198,9 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi HTTPS Redirect (8881/tcp) - Optional guest portal
+  # UniFi Hotspot Portal Redirection (8881/tcp) - Optional, for guest portal HTTP redirect
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_https_redirect ? [1] : []
+    for_each = var.enable_port_hotspot_8881 ? [1] : []
     content {
       protocol  = "6"
       source    = "0.0.0.0/0"
@@ -213,9 +213,9 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi STUN Server (8882/tcp) - Optional WebRTC
+  # UniFi Hotspot Portal Redirection (8882/tcp) - Optional, for guest portal HTTP redirect
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_stun_server ? [1] : []
+    for_each = var.enable_port_hotspot_8882 ? [1] : []
     content {
       protocol  = "6"
       source    = "0.0.0.0/0"
@@ -228,11 +228,11 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi API (9543/tcp) - Optional external API
+  # UniFi Port 9543 (9543/tcp) - Unknown use
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_api ? [1] : []
+    for_each = var.enable_port_unifi_9543 ? [1] : []
     content {
-      protocol  = "6"
+      protocol  = "6" # TCP
       source    = "0.0.0.0/0"
       stateless = false
 
@@ -243,9 +243,24 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi AP/Device Monitoring (10003/udp) - Required for AP discovery
+  # UniFi Device Discovery (10001/udp) - Required for device discovery during adoption
   dynamic "ingress_security_rules" {
-    for_each = var.enable_port_device_monitoring ? [1] : []
+    for_each = var.enable_port_device_discovery ? [1] : []
+    content {
+      protocol  = "17" # UDP
+      source    = "0.0.0.0/0"
+      stateless = false
+
+      udp_options {
+        min = 10001
+        max = 10001
+      }
+    }
+  }
+
+  # UniFi Port 10003 (10003/udp) - Unknown use
+  dynamic "ingress_security_rules" {
+    for_each = var.enable_port_unifi_10003 ? [1] : []
     content {
       protocol  = "17" # UDP
       source    = "0.0.0.0/0"
@@ -258,7 +273,22 @@ resource "oci_core_security_list" "unifi_sl" {
     }
   }
 
-  # UniFi WebSockets/Console (11443/tcp) - Required for initial setup
+  # UniFi Port 11084 (11084/tcp) - Unknown use
+  dynamic "ingress_security_rules" {
+    for_each = var.enable_port_unifi_11084 ? [1] : []
+    content {
+      protocol  = "6" # TCP
+      source    = "0.0.0.0/0"
+      stateless = false
+
+      tcp_options {
+        min = 11084
+        max = 11084
+      }
+    }
+  }
+
+  # UniFi Application GUI/API (11443/tcp) - Required for web browser access and Remote Management
   dynamic "ingress_security_rules" {
     for_each = var.enable_port_websockets ? [1] : []
     content {

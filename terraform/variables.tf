@@ -150,14 +150,14 @@ variable "enable_port_stun" {
   default     = true
 }
 
-variable "enable_port_controller_discovery" {
-  description = "Enable Controller Discovery (5005/tcp) - Required for UniFi devices to find controller"
+variable "enable_port_unifi_5005" {
+  description = "Enable UniFi Port 5005 (5005/tcp) - Unknown use"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_port_remote_logging" {
-  description = "Enable Remote Logging (5514/tcp) - Optional, for remote syslog"
+  description = "Enable Remote Syslog Capture (5514/udp) - Optional, for remote syslog"
   type        = bool
   default     = false
 }
@@ -175,7 +175,7 @@ variable "enable_port_device_adoption" {
 }
 
 variable "enable_port_https_portal" {
-  description = "Enable HTTPS Portal (8443/tcp) - Required for web UI access"
+  description = "Enable Application GUI/API (8443/tcp) - Required for web UI on UniFi Console"
   type        = bool
   default     = true
 }
@@ -186,44 +186,56 @@ variable "enable_port_https_guest_portal" {
   default     = true
 }
 
-variable "enable_port_https_guest_redirect" {
-  description = "Enable HTTPS Guest Redirect (8444/tcp) - Optional, for guest portal HTTPS redirect"
+variable "enable_port_secure_portal" {
+  description = "Enable Secure Portal for Hotspot (8444/tcp) - Optional, for secure hotspot portal"
   type        = bool
   default     = true
 }
 
-variable "enable_port_http_redirect" {
-  description = "Enable HTTP Redirect (8880/tcp) - Optional, for guest portal HTTP redirect"
+variable "enable_port_hotspot_8880" {
+  description = "Enable Hotspot Portal Redirection (8880/tcp) - Optional, for guest portal HTTP redirect"
   type        = bool
   default     = true
 }
 
-variable "enable_port_https_redirect" {
-  description = "Enable HTTPS Redirect (8881/tcp) - Optional, for guest portal redirect"
+variable "enable_port_hotspot_8881" {
+  description = "Enable Hotspot Portal Redirection (8881/tcp) - Optional, for guest portal HTTP redirect"
   type        = bool
   default     = true
 }
 
-variable "enable_port_stun_server" {
-  description = "Enable STUN Server (8882/tcp) - Optional, for WebRTC/video features"
+variable "enable_port_hotspot_8882" {
+  description = "Enable Hotspot Portal Redirection (8882/tcp) - Optional, for guest portal HTTP redirect"
   type        = bool
   default     = false
 }
 
-variable "enable_port_api" {
-  description = "Enable API (9543/tcp) - Optional, for external API access"
+variable "enable_port_unifi_9543" {
+  description = "Enable UniFi Port 9543 (9543/tcp) - Unknown use"
   type        = bool
   default     = false
 }
 
-variable "enable_port_device_monitoring" {
-  description = "Enable AP/Device Monitoring (10003/udp) - Required for AP discovery and monitoring"
+variable "enable_port_device_discovery" {
+  description = "Enable Device Discovery (10001/udp) - Required for device discovery during adoption"
   type        = bool
   default     = true
+}
+
+variable "enable_port_unifi_10003" {
+  description = "Enable UniFi Port 10003 (10003/udp) - Unknown use"
+  type        = bool
+  default     = false
+}
+
+variable "enable_port_unifi_11084" {
+  description = "Enable UniFi Port 11084 (11084/tcp) - Unknown use"
+  type        = bool
+  default     = false
 }
 
 variable "enable_port_websockets" {
-  description = "Enable WebSockets/Console (11443/tcp) - Required for initial setup, can be disabled after remote management is configured"
+  description = "Enable Application GUI/API (11443/tcp) - Required for web browser access and Remote Management"
   type        = bool
   default     = true
 }

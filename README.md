@@ -267,20 +267,26 @@ Les mises à jour de sécurité sont **activées par défaut** via `unattended-u
 | Port | Protocol | Service | Requis | Par défaut |
 |------|----------|---------|--------|------------|
 | 22 | TCP | SSH | ✅ | Activé (restriction IP) |
-| 3478 | UDP | STUN Discovery | ✅ | Activé |
-| 5005 | TCP | Controller Discovery | ✅ | Activé |
-| 5514 | TCP | Remote Logging | ❌ | Désactivé |
+| 53 | TCP/UDP | DNS | ✅ | Géré par l'OS |
+| 3478 | UDP | STUN for device adoption | ✅ | Activé |
+| 5005 | TCP | UniFi Port (Unknown use) | ❓ | Désactivé |
+| 5514 | UDP | Remote Syslog Capture | ❌ | Désactivé |
+| 5671 | TCP | Traffic Flow logging (UXG) | ❌ | Non configuré |
 | 6789 | TCP | Mobile Speed Test | ✅ | Activé |
-| 8080 | TCP | Device Adoption | ✅ | Activé (restriction IP) |
-| 8443 | TCP | HTTPS Portal | ✅ | Activé |
-| 8843 | TCP | HTTPS Guest Portal | ❌ | Activé (hotspot) |
-| 8444 | TCP | HTTPS Guest Redirect | ❌ | Activé (hotspot) |
-| 8880 | TCP | HTTP Redirect | ❌ | Activé |
-| 8881 | TCP | HTTPS Redirect | ❌ | Activé |
-| 8882 | TCP | STUN Server | ❌ | Désactivé |
-| 9543 | TCP | API | ❌ | Désactivé |
-| 10003 | UDP | AP/Device Monitoring | ✅ | Activé |
-| 11443 | TCP | WebSockets/Console | ⚠️ | Activé (désactiver après setup) |
+| 8080 | TCP | Device and Application Communication | ✅ | Activé (restriction IP) |
+| 8443 | TCP | Application GUI/API (UniFi Console) | ✅ | Activé |
+| 8843 | TCP | Hotspot Portal Redirection (HTTPS) | ❌ | Activé (hotspot) |
+| 8444 | TCP | Secure Portal for Hotspot | ❌ | Activé (hotspot) |
+| 8880 | TCP | Hotspot Portal Redirection (HTTP) | ❌ | Activé |
+| 8881 | TCP | Hotspot Portal Redirection (HTTP) | ❌ | Activé |
+| 8882 | TCP | Hotspot Portal Redirection (HTTP) | ❌ | Désactivé |
+| 9543 | TCP | UniFi Port (Unknown use) | ❓ | Désactivé |
+| 10001 | UDP | Device Discovery during Adoption | ✅ | Activé |
+| 10003 | UDP | UniFi Port (Unknown use) | ❓ | Désactivé |
+| 11084 | TCP | UniFi Port (Unknown use) | ❓ | Désactivé |
+| 11443 | TCP | Application GUI/API (Web Browser + Remote Management) | ⚠️ | Activé (requis) |
+| 27117 | TCP | Local Database Communication | ✅ | Géré par conteneur |
+| 1900 | UDP | L2 Discovery | ❌ | Non configuré |
 | ICMP | - | Ping | ❌ | Activé (diagnostics réseau) |
 
 **Configuration des ports** :
@@ -291,10 +297,15 @@ Chaque port peut être activé/désactivé individuellement dans `.env` :
 # Exemple : Désactiver le port console après configuration
 TF_VAR_enable_port_websockets=false
 
+# Activer les ports additionnels UniFi (unknown use)
+TF_VAR_enable_port_unifi_5005=true
+TF_VAR_enable_port_unifi_9543=true
+TF_VAR_enable_port_unifi_10003=true
+TF_VAR_enable_port_unifi_11084=true
+
 # Désactiver les ports optionnels
 TF_VAR_enable_port_remote_logging=false
-TF_VAR_enable_port_stun_server=false
-TF_VAR_enable_port_api=false
+TF_VAR_enable_port_hotspot_8882=false
 ```
 
 Puis appliquer :
