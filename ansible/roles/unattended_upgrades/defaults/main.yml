@@ -19,7 +19,7 @@ unattended_upgrades_minimal_steps: true
 
 # Origins to allow upgrades from
 unattended_upgrades_origins_patterns:
-  - 'origin=Ubuntu,archive=${distro_codename}'
-  - 'origin=Ubuntu,archive=${distro_codename}-security'
-  - 'origin=UbuntuESMApps,archive=${distro_codename}-apps-security'
-  - 'origin=UbuntuESM,archive=${distro_codename}-infra-security'
+  - '${distro_id}:${distro_codename}'
+  - '${distro_id}:${distro_codename}-security'
+  - '${distro_id}ESMApps:${distro_codename}-apps-security'
+  - '${distro_id}ESM:${distro_codename}-infra-security'
