@@ -1,24 +1,51 @@
 # UniFi OS Server sur Oracle Cloud Always Free
 
-Déployez **UniFi OS Server** complet sur Oracle Cloud Always Free avec un déploiement entièrement automatisé en **une seule commande**.
+Déployez **UniFi OS Server** complet sur Oracle Cloud Always Free.
 
 ## 🎯 Caractéristiques
 
-- ✅ **Déploiement automatisé complet** - Une commande pour tout installer
 - ✅ **100% gratuit** avec Oracle Cloud Always Free
-- ✅ **UniFi OS Server 5.0.6** - Suite complète (Network, Protect, Talk, Access)
+- ✅ **UniFi OS Server 5.0.6**
 - ✅ **Conteneurs Podman** - Isolation et sécurité maximale
 - ✅ **Mises à jour de sécurité automatiques** - Quotidiennes via unattended-upgrades
-- ✅ **Infrastructure as Code** - Terraform + cloud-init
+- ✅ **Infrastructure as Code** - Terraform + Ansible
 - ✅ **Configuration simplifiée** - Un seul fichier `.env`
+- ✅ **Pas de recréation de VM** - Modifications de config sans détruire l'infrastructure
+- ✅ **Idempotence** - `terraform apply` peut être exécuté plusieurs fois sans risque
 
 ### Stack technique
 
-- **Infrastructure** : Terraform 1.9.8
+- **Infrastructure** : Terraform
+- **Configuration** : Ansible avec le [provider Terraform Ansible](https://registry.terraform.io/providers/ansible/ansible/latest)
 - **OS** : Ubuntu LTS
 - **Conteneurs** : Podman + slirp4netns
 - **Application** : UniFi OS Server 5.0.6 (ARM64)
 - **Outils** : Mise
+
+### 🏗️ Architecture
+
+Ce projet utilise une architecture en trois couches avec **Terraform et Ansible** :
+
+1. **Terraform** : Gestion de l'infrastructure cloud (compute, network, storage)
+   - Provisionnement des ressources Oracle Cloud
+   - Définition de l'inventaire Ansible via `ansible_host` et `ansible_group`
+   - Orchestration de l'exécution Ansible via `terraform_data`
+
+2. **Cloud-init** : Bootstrap minimal (Python, configuration de base)
+
+3. **Ansible** : Configuration applicative complète
+   - **Rôles** : common, ufw, unifi_os_server, unattended_upgrades, ddclient, unifi_easy_encrypt
+   - **Inventaire dynamique** : Lecture du state Terraform via `cloud.terraform.terraform_provider`
+   - **Idempotence** : Exécution multiple sans risque de reconfiguration inutile
+
+**Avantages** :
+
+- ✅ Modifications de configuration sans recréer la VM
+- ✅ Configuration idempotente (exécution multiple sans risque)
+- ✅ Inventaire dynamique géré par Terraform
+- ✅ Séparation claire des responsabilités
+- ✅ Rôles réutilisables et modulaires
+- ✅ Testabilité et rollback faciles
 
 ### Ressources Oracle Cloud utilisées
 
@@ -50,7 +77,10 @@ Déployez **UniFi OS Server** complet sur Oracle Cloud Always Free avec un dépl
 ### Outils locaux
 
 - [Mise](https://mise.jdx.dev) - Gestion des outils et automatisation
+  - Installe automatiquement Terraform, Python et Ansible via `mise run setup`
 - Clé SSH pour accéder à l'instance
+
+**Note** : Vous n'avez pas besoin d'installer Terraform ou Ansible manuellement. Mise s'occupe de tout !
 
 ## 🚀 Installation
 
@@ -66,9 +96,18 @@ source ~/.bashrc
 git clone <votre-repo>
 cd unifi-oracle-cloud
 
-# Installer les outils
+# Installer tous les outils (Terraform, Python, Ansible + collections)
 mise run setup
 ```
+
+**Que fait `mise run setup` ?**
+
+- ✅ Installe Terraform 1.14.3
+- ✅ Installe Python 3.12
+- ✅ Installe Ansible dans
+- ✅ Installe les collections Ansible (community.general, ansible.posix, cloud.terraform)
+
+Tout est automatique, aucune installation manuelle nécessaire !
 
 ### 2. Configuration (3 minutes)
 
@@ -132,15 +171,22 @@ mise run deploy
 
 **C'est tout !** 🎉
 
-Terraform va automatiquement :
+Le déploiement se déroule en plusieurs phases :
 
-1. Créer l'infrastructure Oracle Cloud (~5 min)
-2. Installer Podman et slirp4netns via cloud-init (~2 min)
-3. Télécharger et installer UniFi OS Server 5.0.6 (~5 min)
-4. Configurer le firewall (13 ports)
-5. Activer les mises à jour de sécurité
+1. **Terraform** crée l'infrastructure Oracle Cloud (~2 min)
+2. **Cloud-init** prépare la VM (Python, config de base) (~2 min)
+3. **Ansible** configure l'application (~5-8 min) :
+   - Configuration système de base (hostname, timezone, packages)
+   - Installation de Podman et dépendances
+   - Téléchargement et installation d'UniFi OS Server 5.0.6
+   - Configuration du firewall UFW (ports dynamiques)
+   - Configuration des mises à jour automatiques (unattended-upgrades)
+   - Configuration de ddclient (DNS dynamique - optionnel)
+   - Installation d'UniFi Easy Encrypt (Let's Encrypt SSL - optionnel)
 
-**Durée totale : 10-15 minutes**
+**Durée totale : 10-12 minutes**
+
+**Note** : Ansible est exécuté automatiquement par Terraform. Vous n'avez rien à faire manuellement.
 
 ### 5. Suivre l'installation
 
@@ -189,6 +235,86 @@ mise run logs     # Voir les logs en temps réel
 mise run url      # Afficher l'URL UniFi
 mise run ssh      # Se connecter en SSH
 ```
+
+### Gestion Ansible
+
+```bash
+mise run ansible-inventory  # Afficher l'inventaire dynamique
+mise run ansible-graph      # Afficher le graph de l'inventaire
+mise run ansible-ping       # Tester la connectivité
+mise run ansible-run        # Exécuter le playbook manuellement
+mise run ansible-check      # Dry-run du playbook
+mise run ansible-tags       # Lister les tags disponibles
+mise run ansible-setup      # Réinstaller les collections Ansible
+```
+
+## 🔧 Modifier la configuration (sans recréer la VM !)
+
+Un des principaux avantages de l'architecture Terraform + Ansible est la possibilité de modifier la configuration **sans recréer la VM**.
+
+### Exemples de modifications
+
+#### Activer le port HTTP pour Let's Encrypt
+
+```bash
+# Éditer .env
+echo 'TF_VAR_enable_port_http=true' >> .env
+
+# Appliquer
+cd terraform && terraform apply
+```
+
+→ Ansible reconfigure UFW en **2-3 minutes** sans toucher à la VM ✅
+
+#### Changer la version d'UniFi OS Server
+
+```bash
+# Éditer .env avec la nouvelle URL
+nano .env
+# Modifier : TF_VAR_unifi_os_server_download_url=https://...nouvelle-version...
+
+# Appliquer
+cd terraform && terraform apply
+```
+
+→ Ansible réinstalle UniFi en **5-8 minutes** sans recréer la VM ✅
+
+#### Activer ddclient pour DNS dynamique
+
+```bash
+# Éditer .env
+cat >> .env << EOF
+TF_VAR_ddclient_enabled=true
+TF_VAR_ddclient_protocol=cloudflare
+TF_VAR_ddclient_zone=example.com
+TF_VAR_ddclient_hostname=unifi.example.com
+TF_VAR_ddclient_password=votre-token-api
+EOF
+
+# Appliquer
+cd terraform && terraform apply
+```
+
+→ Ansible installe et configure ddclient en **2 minutes** ✅
+
+### Exécuter uniquement Ansible
+
+Si vous voulez juste ré-exécuter la configuration Ansible sans toucher à Terraform :
+
+```bash
+# Via Mise (recommandé)
+mise run ansible-run        # Exécuter le playbook
+mise run ansible-check      # Dry-run
+mise run ansible-inventory  # Voir l'inventaire
+
+# Ou directement
+cd ansible
+ansible-playbook playbook.yml
+ansible-playbook playbook.yml --tags ufw
+ansible-inventory --list
+```
+
+**Note** : Le plugin d'inventaire `cloud.terraform.terraform_provider` lit les hosts directement depuis le state Terraform. Pas besoin de fichier statique !
 
 ## 📖 Configuration détaillée
 
@@ -472,37 +598,9 @@ df -h  # Vérifier l'espace disque
 
 ## 📚 Documentation supplémentaire
 
+- [ansible/README.md](ansible/README.md) - Documentation Ansible (rôles, playbooks, utilisation)
+- [terraform/README.md](terraform/README.md) - Documentation Terraform (variables, outputs, ressources)
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Guide de contribution
-- [CHANGELOG.md](CHANGELOG.md) - Historique des versions
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────┐
-│     Oracle Cloud Infrastructure         │
-│                                         │
-│  ┌───────────────────────────────────┐  │
-│  │  VCN (10.0.0.0/16)                │  │
-│  │                                   │  │
-│  │  ┌─────────────────────────────┐  │  │
-│  │  │ Public Subnet (10.0.1.0/24) │  │  │
-│  │  │                             │  │  │
-│  │  │  ┌──────────────────────┐   │  │  │
-│  │  │  │  UniFi Instance      │   │  │  │
-│  │  │  │  - Ubuntu LTS        │   │  │  │
-│  │  │  │  - 2 vCPU / 12GB RAM │   │  │  │
-│  │  │  │  - Podman            │   │  │  │
-│  │  │  │  - UniFi OS Server   │   │  │  │
-│  │  │  │  - Auto-updates      │   │  │  │
-│  │  │  └──────────────────────┘   │  │  │
-│  │  │           │                  │  │  │
-│  │  │    Public IP (Ephemeral)     │  │  │
-│  │  └─────────────────────────────┘  │  │
-│  │                                   │  │
-│  │  Security Lists + Internet GW     │  │
-│  └───────────────────────────────────┘  │
-└─────────────────────────────────────────┘
-```
 
 ## 💰 Coûts
 

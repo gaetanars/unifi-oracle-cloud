@@ -1,0 +1,46 @@
+---
+# UniFi OS Server Configuration Playbook
+# This playbook configures the UniFi OS Server instance with all required services
+# It is executed by Terraform after infrastructure provisioning
+
+- name: Configure UniFi OS Server
+  hosts: unifi_servers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Wait for cloud-init to complete
+      command: cloud-init status --wait
+      changed_when: false
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  roles:
+    - role: common
+      tags: [common, base]
+
+    - role: unattended_upgrades
+      tags: [unattended_upgrades, security]
+      when: auto_updates | default(true) | bool
+
+    - role: ufw
+      tags: [ufw, firewall, security]
+
+    - role: unifi_os_server
+      tags: [unifi, application]
+
+    - role: ddclient
+      tags: [ddclient, dns]
+      when: ddclient_enabled | default(false) | bool
+
+    - role: unifi_easy_encrypt
+      tags: [unifi_easy_encrypt, ssl, certificate]
+      when: unifi_easy_encrypt_enabled | default(false) | bool
+
+  post_tasks:
+    - name: Display UniFi OS Server URL
+      debug:
+        msg: "UniFi OS Server is available at: https://{{ ansible_facts['default_ipv4']['address'] }}:11443"

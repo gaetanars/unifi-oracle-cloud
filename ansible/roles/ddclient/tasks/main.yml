@@ -1,0 +1,38 @@
+---
+# ddclient installation and configuration
+
+- name: Install ddclient
+  apt:
+    name: ddclient
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Configure ddclient
+  template:
+    src: ddclient.conf.j2
+    dest: /etc/ddclient.conf
+    mode: '0600'
+    owner: root
+    group: root
+  notify: restart ddclient
+  no_log: true  # Don't log sensitive data
+
+- name: Enable and start ddclient service
+  systemd:
+    name: ddclient
+    enabled: yes
+    state: started
+
+- name: Force ddclient to update DNS immediately
+  command: ddclient -force
+  changed_when: false
+  failed_when: false
+  when: ddclient_force_update | default(false) | bool
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Display ddclient status
+  debug:
+    msg: "ddclient - State: {{ ansible_facts.services['ddclient.service'].state | default('unknown') }} | Status: {{ ansible_facts.services['ddclient.service'].status | default('unknown') }}"

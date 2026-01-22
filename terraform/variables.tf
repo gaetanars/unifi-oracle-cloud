@@ -133,6 +133,12 @@ variable "auto_updates" {
   default     = true
 }
 
+variable "disable_ipv6" {
+  description = "Disable IPv6 on the server (optional, for stability)"
+  type        = bool
+  default     = false
+}
+
 # ============================================================================
 # UniFi OS Server - Port Configuration
 # ============================================================================
@@ -250,4 +256,119 @@ variable "enable_icmp_ping" {
   description = "Enable ICMP (ping) - Useful for network diagnostics"
   type        = bool
   default     = true
+}
+
+# ============================================================================
+# ddclient - Dynamic DNS Configuration (Optional)
+# ============================================================================
+# Configure ddclient to automatically update DNS records when IP changes.
+# Useful if you want a domain name that always points to your server.
+# Supports multiple providers: Cloudflare, Namecheap, Google Domains, etc.
+# ============================================================================
+
+variable "ddclient_enabled" {
+  description = "Enable ddclient for dynamic DNS updates"
+  type        = bool
+  default     = false
+}
+
+variable "ddclient_protocol" {
+  description = "DNS provider protocol (cloudflare, namecheap, googledomains, etc.)"
+  type        = string
+  default     = "cloudflare"
+}
+
+variable "ddclient_zone" {
+  description = "DNS zone/domain (e.g., example.com)"
+  type        = string
+  default     = ""
+}
+
+variable "ddclient_hostname" {
+  description = "Hostname to update (e.g., unifi.example.com)"
+  type        = string
+  default     = ""
+}
+
+variable "ddclient_login" {
+  description = "DNS provider login/email (leave empty if not required)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "ddclient_password" {
+  description = "DNS provider API token or password"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "ddclient_server" {
+  description = "DNS provider server (e.g., update.dedyn.io for dyndns2)"
+  type        = string
+  default     = ""
+}
+
+variable "ddclient_use" {
+  description = "IP detection method (web, cmd, if, ip)"
+  type        = string
+  default     = "web"
+}
+
+variable "ddclient_cmd" {
+  description = "Command for IP detection when use=cmd (e.g., curl https://checkipv4.dedyn.io/)"
+  type        = string
+  default     = ""
+}
+
+variable "ddclient_ssl" {
+  description = "Enable SSL for ddclient connections"
+  type        = string
+  default     = "yes"
+}
+
+# ============================================================================
+# UniFi Easy Encrypt - SSL Certificate Configuration (Optional)
+# ============================================================================
+# Automate Let's Encrypt SSL certificate installation for UniFi OS Server
+# Using the unifi-easy-encrypt.sh script by Glenn R.
+# https://get.glennr.nl/unifi/extra/unifi-easy-encrypt.sh
+# ============================================================================
+
+variable "unifi_easy_encrypt_enabled" {
+  description = "Enable UniFi Easy Encrypt for automatic Let's Encrypt SSL certificates"
+  type        = bool
+  default     = false
+}
+
+variable "unifi_easy_encrypt_email" {
+  description = "Email address for Let's Encrypt notifications"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "unifi_easy_encrypt_fqdn" {
+  description = "Fully Qualified Domain Name for the SSL certificate (e.g., unifi.example.com)"
+  type        = string
+  default     = ""
+}
+
+variable "unifi_easy_encrypt_external_dns" {
+  description = "External DNS server to resolve the FQDN (e.g., 1.1.1.1, 8.8.8.8)"
+  type        = string
+  default     = ""
+}
+
+variable "unifi_easy_encrypt_run_after_install" {
+  description = "Run the script immediately after installation (requires --skip, --email, and --fqdn)"
+  type        = bool
+  default     = false
+}
+
+variable "unifi_easy_encrypt_force_renew" {
+  description = "Force certificate renewal even if configuration hasn't changed"
+  type        = bool
+  default     = false
 }

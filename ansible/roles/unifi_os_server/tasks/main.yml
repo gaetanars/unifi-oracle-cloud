@@ -1,0 +1,72 @@
+---
+# UniFi OS Server installation and configuration
+
+- name: Install Podman and dependencies
+  apt:
+    name: "{{ unifi_packages }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Check if UniFi OS Server is already installed
+  stat:
+    path: /usr/local/bin/uosserver
+  register: unifi_installed
+  when: unifi_check_installed | bool
+
+- name: Download UniFi OS Server installer
+  get_url:
+    url: "{{ unifi_os_server_download_url }}"
+    dest: "{{ unifi_installer_path }}"
+    mode: '0755'
+    timeout: 300
+  when: not (unifi_installed.stat.exists | default(false))
+
+- name: Install UniFi OS Server
+  shell: |
+    set -o pipefail
+    {{ unifi_installer_path }} <<EOF
+    y
+    EOF
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/uosserver
+  register: unifi_installation
+  when: not (unifi_installed.stat.exists | default(false))
+
+- name: Remove installer file
+  file:
+    path: "{{ unifi_installer_path }}"
+    state: absent
+  when: unifi_installation is changed
+
+- name: Wait for UniFi OS Server to start
+  wait_for:
+    port: 11443
+    host: localhost
+    delay: 10
+    timeout: 300
+    state: started
+  when: unifi_installation is changed
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Display UniFi OS Server status
+  debug:
+    msg: "UniFi OS Server - State: {{ ansible_facts.services['uosserver.service'].state | default('unknown') }} | Status: {{ ansible_facts.services['uosserver.service'].status | default('unknown') }}"
+
+- name: Get UniFi OS Server version
+  shell: |
+    set -o pipefail
+    /usr/local/bin/uosserver version 2>/dev/null || echo "Version not available"
+  args:
+    executable: /bin/bash
+  register: unifi_version
+  changed_when: false
+  failed_when: false
+
+- name: Display UniFi OS Server version
+  debug:
+    msg: "UniFi OS Server version: {{ unifi_version.stdout }}"
+  when: unifi_version.stdout is defined

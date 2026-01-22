@@ -33,9 +33,8 @@ resource "oci_core_instance" "unifi_instance" {
   metadata = {
     ssh_authorized_keys = file(pathexpand(var.ssh_public_key_path))
     user_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
-      hostname                     = var.instance_display_name
-      timezone                     = var.timezone
-      unifi_os_server_download_url = var.unifi_os_server_download_url
+      hostname = var.instance_display_name
+      timezone = var.timezone
     }))
   }
 
@@ -47,7 +46,8 @@ resource "oci_core_instance" "unifi_instance" {
   # Lifecycle
   lifecycle {
     ignore_changes = [
-      source_details[0].source_id
+      source_details[0].source_id,
+      metadata
     ]
   }
 }

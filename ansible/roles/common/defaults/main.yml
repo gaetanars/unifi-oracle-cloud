@@ -1,0 +1,19 @@
+---
+# Common role default variables
+
+# System configuration
+hostname: unifi-network-server
+timezone: Europe/Paris
+
+# Base packages to install
+common_packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - net-tools
+  - apt-listchanges
+  - vim
+  - htop
+  - tmux

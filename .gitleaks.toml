@@ -1,0 +1,37 @@
+# Gitleaks configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "UniFi Oracle Cloud - Gitleaks Configuration"
+
+# Extend the default configuration
+[extend]
+useDefault = true
+
+# Allowlisted files and patterns
+[allowlist]
+description = "Files and patterns to ignore"
+
+paths = [
+  '''\.env\.example$''',
+  '''\.mise\.toml$''',
+  '''CHANGELOG\.md$''',
+  '''README\.md$''',
+]
+
+regexes = [
+  # Example OCIDs in documentation
+  '''ocid1\.(tenancy|user|compartment)\.oc1\.\.[a-z]+''',
+  # Example fingerprints in documentation
+  '''aa:bb:cc:dd:ee:ff''',
+  # Example IPs in documentation
+  '''192\.168\.1\.0/24''',
+  '''10\.0\.0\.0/8''',
+  # Example URLs in documentation
+  '''https://fw-download\.ubnt\.com''',
+  '''https://get\.glennr\.nl''',
+  # Non-sensitive Terraform variables
+  '''TF_VAR_region''',
+  '''TF_VAR_instance_shape''',
+  '''TF_VAR_timezone''',
+  '''TF_VAR_ubuntu_version''',
+]

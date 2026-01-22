@@ -1,0 +1,21 @@
+---
+# Ansible dynamic inventory using the Terraform provider plugin
+# This inventory reads hosts and groups directly from Terraform state
+# via the ansible_host and ansible_group resources
+
+plugin: cloud.terraform.terraform_provider
+
+# Backend configuration
+# The plugin will read from the same Terraform backend as configured in terraform/
+
+# Project path (where the Terraform files are)
+project_path: ../terraform
+
+# Optional: Filter resources
+# By default, all ansible_host and ansible_group resources are included
+
+# Optional: Enable caching for better performance
+# cache: yes
+# cache_plugin: jsonfile
+# cache_timeout: 3600
+# cache_connection: /tmp/ansible_terraform_inventory
