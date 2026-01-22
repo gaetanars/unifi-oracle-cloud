@@ -1,0 +1,16 @@
+# Ansible-lint configuration - Simple and efficient
+
+profile: production
+
+# Exclude paths
+exclude_paths:
+  - .cache/
+
+# Skip some rules for flexibility
+skip_list:
+  - yaml[line-length]
+  - name[casing]
+
+# Warn on no-changed-when
+warn_list:
+  - no-changed-when

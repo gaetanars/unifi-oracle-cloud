@@ -1,0 +1,39 @@
+---
+# ddclient default variables
+
+# Enable or disable ddclient
+ddclient_enabled: false
+
+# ddclient configuration
+ddclient_daemon: 300  # Check every 5 minutes
+ddclient_syslog: "yes"
+ddclient_mail: ""
+ddclient_mail_failure: ""
+ddclient_pid: /var/run/ddclient.pid
+ddclient_ssl: "yes"
+
+# DNS provider configuration
+# Supported protocols: cloudflare, dyndns2, namecheap, googledomains, etc.
+ddclient_protocol: cloudflare
+ddclient_server: ""  # Server URL for dyndns2 (e.g., update.dedyn.io)
+ddclient_zone: example.com
+ddclient_hostname: unifi.example.com
+
+# Authentication (use Terraform variables for sensitive data)
+ddclient_login: ""  # Email for Cloudflare, username for other providers
+ddclient_password: ""  # API token or password
+
+# IP detection method
+# Options: web, cmd, if, ip
+ddclient_use: web
+
+# For use=web
+ddclient_web: ipify-ipv4
+ddclient_web_skip: ""
+
+# For use=cmd (example: curl https://checkipv4.dedyn.io/)
+ddclient_cmd: ""
+ddclient_cmd_skip: ""
+
+# Cloudflare specific
+ddclient_ttl: 1  # TTL=1 means "automatic" in Cloudflare

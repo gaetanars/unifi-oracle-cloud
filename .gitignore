@@ -19,8 +19,9 @@ terraform.rc
 # Backend configuration
 terraform/backend.tf
 
-# Ansible (legacy - kept for reference if needed)
+# Ansible
 *.retry
+/tmp/ansible_facts  # Ansible fact cache
 
 # IDE
 .vscode/
@@ -54,3 +55,6 @@ ENV/
 
 # Logs
 *.log
+
+# Pre-commit
+.pre-commit-config.yaml.backup

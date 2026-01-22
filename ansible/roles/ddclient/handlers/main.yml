@@ -1,0 +1,7 @@
+---
+# Handlers for ddclient role
+
+- name: restart ddclient
+  systemd:
+    name: ddclient
+    state: restarted

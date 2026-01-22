@@ -1,0 +1,13 @@
+---
+# Ansible Galaxy requirements
+# Install with: ansible-galaxy collection install -r requirements.yml
+
+collections:
+  - name: community.general
+    version: ">=9.0.0"
+
+  - name: ansible.posix
+    version: ">=1.5.0"
+
+  - name: cloud.terraform
+    version: ">=3.0.0"

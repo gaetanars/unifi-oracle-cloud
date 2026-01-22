@@ -1,0 +1,16 @@
+---
+# UniFi OS Server default variables
+
+# UniFi OS Server download URL
+unifi_os_server_download_url: "https://fw-download.ubnt.com/data/unifi-os-server/df5b-linux-arm64-5.0.6-f35e944c-f4b6-4190-93a8-be61b96c58f4.6-arm64"
+
+# Installation directory
+unifi_installer_path: /tmp/unifi-os-server.run
+
+# Podman and dependencies
+unifi_packages:
+  - podman
+  - slirp4netns
+
+# Check if UniFi OS Server is already installed
+unifi_check_installed: true

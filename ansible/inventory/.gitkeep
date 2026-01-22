@@ -1,0 +1,2 @@
+# This directory contains the Ansible inventory
+# The inventory file (hosts.yml) is generated dynamically by Terraform

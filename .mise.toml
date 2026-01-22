@@ -3,9 +3,17 @@
 
 [tools]
 terraform = "1.14.3"
+python = "3.12"
+pipx = "latest"
+ansible = "13.2.0"
+pre-commit = "latest"
 
 [env]
 _.file = ".env"
+
+[tasks.ansible-setup]
+description = "Install Ansible collections"
+run = "cd ansible && ansible-galaxy collection install -r requirements.yml"
 
 [tasks.init]
 description = "Initialize Terraform"
@@ -85,6 +93,56 @@ run = """
   echo ""
 """
 
+[tasks.ansible-inventory]
+description = "Show Ansible inventory from Terraform state"
+run = "cd ansible && ansible-inventory --list"
+
+[tasks.ansible-graph]
+description = "Show Ansible inventory graph"
+run = "cd ansible && ansible-inventory --graph"
+
+[tasks.ansible-ping]
+description = "Test Ansible connectivity to UniFi server"
+run = "cd ansible && ansible unifi_servers -m ping"
+
+[tasks.ansible-run]
+description = "Run Ansible playbook manually"
+run = "cd ansible && ansible-playbook playbook.yml"
+
+[tasks.ansible-check]
+description = "Run Ansible playbook in check mode (dry-run)"
+run = "cd ansible && ansible-playbook playbook.yml --check --diff"
+
+[tasks.ansible-tags]
+description = "List available Ansible tags"
+run = "cd ansible && ansible-playbook playbook.yml --list-tags"
+
+[tasks.pre-commit-install]
+description = "Install pre-commit hooks"
+run = "pre-commit install"
+
+[tasks.pre-commit-run]
+description = "Run pre-commit on all files"
+run = "pre-commit run --all-files"
+
+[tasks.pre-commit-update]
+description = "Update pre-commit hooks"
+run = "pre-commit autoupdate"
+
+[tasks.lint]
+description = "Run all linters (pre-commit + ansible-lint)"
+run = """
+  echo "🔍 Running pre-commit hooks..."
+  pre-commit run --all-files
+  echo ""
+  echo "🔍 Running ansible-lint..."
+  cd ansible && ansible-lint
+"""
+
+[tasks.ansible-lint]
+description = "Run Ansible linting"
+run = "cd ansible && ansible-lint"
+
 [tasks.backend-setup]
 description = "🗄️  Setup OCI Object Storage backend for tfstate (recommended)"
 run = """
@@ -110,22 +168,5 @@ run = """
 
 [tasks.setup]
 description = "Initial setup - run this first"
-run = [
-  "mise install",
-  "echo '✅ Tools installed successfully'",
-  "echo ''",
-  "echo '📝 Next steps:'",
-  "echo '1. Copy and edit configuration:'",
-  "echo '   cp .env.example .env'",
-  "echo '   nano .env  # Edit with your Oracle Cloud credentials'",
-  "echo ''",
-  "echo '2. (Optional but recommended) Setup remote state:'",
-  "echo '   mise run backend-setup'",
-  "echo ''",
-  "echo '3. Initialize and deploy:'",
-  "echo '   mise run init'",
-  "echo '   mise run deploy'",
-  "echo ''",
-  "echo '💡 Mise automatically loads .env - no need to source it manually!'",
-  "echo ''"
-]
+run = "mise install"
+depends_post = ['ansible-setup','pre-commit-install']

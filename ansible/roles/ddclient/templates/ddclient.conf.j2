@@ -1,0 +1,45 @@
+# ddclient configuration
+# Managed by Ansible - DO NOT EDIT MANUALLY
+
+# Global settings
+daemon={{ ddclient_daemon }}
+syslog={{ ddclient_syslog }}
+{% if ddclient_mail %}
+mail={{ ddclient_mail }}
+{% endif %}
+{% if ddclient_mail_failure %}
+mail-failure={{ ddclient_mail_failure }}
+{% endif %}
+pid={{ ddclient_pid }}
+ssl={{ ddclient_ssl }}
+
+# IP detection method
+use={{ ddclient_use }}
+{% if ddclient_use == 'web' %}
+web={{ ddclient_web }}
+{% if ddclient_web_skip %}
+web-skip='{{ ddclient_web_skip }}'
+{% endif %}
+{% elif ddclient_use == 'cmd' %}
+{% if ddclient_cmd %}
+cmd='{{ ddclient_cmd }}'
+{% endif %}
+{% if ddclient_cmd_skip %}
+cmd-skip='{{ ddclient_cmd_skip }}'
+{% endif %}
+{% endif %}
+
+# DNS provider configuration
+protocol={{ ddclient_protocol }}
+{% if ddclient_server %}
+server={{ ddclient_server }}
+{% endif %}
+{% if ddclient_protocol == 'cloudflare' %}
+zone={{ ddclient_zone }}
+ttl={{ ddclient_ttl }}
+{% endif %}
+{% if ddclient_login %}
+login={{ ddclient_login }}
+{% endif %}
+password='{{ ddclient_password }}'
+{{ ddclient_hostname }}

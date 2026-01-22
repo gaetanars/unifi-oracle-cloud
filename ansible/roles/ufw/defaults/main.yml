@@ -1,0 +1,134 @@
+---
+# UFW firewall default variables
+
+# Default policies
+ufw_default_incoming_policy: deny
+ufw_default_outgoing_policy: allow
+ufw_logging: "on"
+
+# Enable or disable UFW
+ufw_enabled: true
+
+# UniFi ports configuration (from Terraform variables)
+# These are passed from Terraform and control which ports are opened
+enable_port_stun: true                    # 3478/udp - STUN Discovery
+enable_port_unifi_5005: false             # 5005/tcp - Unknown use
+enable_port_remote_logging: false         # 5514/udp - Remote Syslog
+enable_port_mobile_speedtest: true        # 6789/tcp - Mobile Speed Test
+enable_port_http: false                   # 80/tcp - HTTP for Let's Encrypt
+enable_port_device_adoption: true         # 8080/tcp - Device Adoption
+enable_port_https_portal: true            # 8443/tcp - Web UI
+enable_port_https_guest_portal: true      # 8843/tcp - Guest Portal HTTPS
+enable_port_secure_portal: true           # 8444/tcp - Secure Hotspot Portal
+enable_port_hotspot_8880: true            # 8880/tcp - Hotspot Redirect
+enable_port_hotspot_8881: true            # 8881/tcp - Hotspot Redirect
+enable_port_hotspot_8882: false           # 8882/tcp - Hotspot Redirect
+enable_port_unifi_9543: false             # 9543/tcp - Unknown use
+enable_port_device_discovery: true        # 10001/udp - Device Discovery
+enable_port_unifi_10003: false            # 10003/udp - Unknown use
+enable_port_unifi_11084: false            # 11084/tcp - Unknown use
+enable_port_websockets: true              # 11443/tcp - WebSockets/Remote Management
+
+# Port definitions
+unifi_ports:
+  stun:
+    port: 3478
+    proto: udp
+    comment: "STUN Discovery"
+    enabled: "{{ enable_port_stun | default(true) | bool }}"
+
+  unifi_5005:
+    port: 5005
+    proto: tcp
+    comment: "UniFi Port 5005"
+    enabled: "{{ enable_port_unifi_5005 | default(false) | bool }}"
+
+  remote_logging:
+    port: 5514
+    proto: udp
+    comment: "Remote Syslog Capture"
+    enabled: "{{ enable_port_remote_logging | default(false) | bool }}"
+
+  mobile_speedtest:
+    port: 6789
+    proto: tcp
+    comment: "Mobile Speed Test"
+    enabled: "{{ enable_port_mobile_speedtest | default(true) | bool }}"
+
+  http:
+    port: 80
+    proto: tcp
+    comment: "HTTP for LetsEncrypt"
+    enabled: "{{ enable_port_http | default(false) | bool }}"
+
+  device_adoption:
+    port: 8080
+    proto: tcp
+    comment: "Device Adoption"
+    enabled: "{{ enable_port_device_adoption | default(true) | bool }}"
+
+  https_portal:
+    port: 8443
+    proto: tcp
+    comment: "Application GUI/API"
+    enabled: "{{ enable_port_https_portal | default(true) | bool }}"
+
+  https_guest_portal:
+    port: 8843
+    proto: tcp
+    comment: "HTTPS Guest Portal"
+    enabled: "{{ enable_port_https_guest_portal | default(true) | bool }}"
+
+  secure_portal:
+    port: 8444
+    proto: tcp
+    comment: "Secure Portal for Hotspot"
+    enabled: "{{ enable_port_secure_portal | default(true) | bool }}"
+
+  hotspot_8880:
+    port: 8880
+    proto: tcp
+    comment: "Hotspot Portal Redirection"
+    enabled: "{{ enable_port_hotspot_8880 | default(true) | bool }}"
+
+  hotspot_8881:
+    port: 8881
+    proto: tcp
+    comment: "Hotspot Portal Redirection"
+    enabled: "{{ enable_port_hotspot_8881 | default(true) | bool }}"
+
+  hotspot_8882:
+    port: 8882
+    proto: tcp
+    comment: "Hotspot Portal Redirection"
+    enabled: "{{ enable_port_hotspot_8882 | default(false) | bool }}"
+
+  unifi_9543:
+    port: 9543
+    proto: tcp
+    comment: "UniFi Port 9543"
+    enabled: "{{ enable_port_unifi_9543 | default(false) | bool }}"
+
+  device_discovery:
+    port: 10001
+    proto: udp
+    comment: "Device Discovery"
+    enabled: "{{ enable_port_device_discovery | default(true) | bool }}"
+
+  unifi_10003:
+    port: 10003
+    proto: udp
+    comment: "UniFi Port 10003"
+    enabled: "{{ enable_port_unifi_10003 | default(false) | bool }}"
+
+  unifi_11084:
+    port: 11084
+    proto: tcp
+    comment: "UniFi Port 11084"
+    enabled: "{{ enable_port_unifi_11084 | default(false) | bool }}"
+
+  websockets:
+    port: 11443
+    proto: tcp
+    comment: "Application GUI/API - WebSockets"
+    enabled: "{{ enable_port_websockets | default(true) | bool }}"

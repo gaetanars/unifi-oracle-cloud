@@ -1,0 +1,25 @@
+---
+# Unattended upgrades default variables
+
+# Enable or disable unattended upgrades
+auto_updates: true
+
+# Automatic reboot settings
+unattended_upgrades_automatic_reboot: true
+unattended_upgrades_automatic_reboot_time: "03:00"
+
+# Package removal settings
+unattended_upgrades_remove_unused_kernel_packages: true
+unattended_upgrades_remove_new_unused_dependencies: true
+unattended_upgrades_remove_unused_dependencies: true
+
+# Upgrade behavior
+unattended_upgrades_autofix_interrupted_dpkg: true
+unattended_upgrades_minimal_steps: true
+
+# Origins to allow upgrades from
+unattended_upgrades_origins_patterns:
+  - 'origin=Ubuntu,archive=${distro_codename}'
+  - 'origin=Ubuntu,archive=${distro_codename}-security'
+  - 'origin=UbuntuESMApps,archive=${distro_codename}-apps-security'
+  - 'origin=UbuntuESM,archive=${distro_codename}-infra-security'

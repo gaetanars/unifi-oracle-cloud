@@ -15,32 +15,35 @@ jobs:
   terraform-validate:
     name: Validate Terraform Configuration
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.8
-      
+
       - name: Terraform Format Check
         id: fmt
         run: terraform fmt -check -recursive
         working-directory: terraform
         continue-on-error: true
-      
+
       - name: Terraform Init
         id: init
         run: terraform init -backend=false
         working-directory: terraform
-      
+
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
         working-directory: terraform
-      
+
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -49,9 +52,9 @@ jobs:
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

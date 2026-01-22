@@ -1,0 +1,125 @@
+---
+# UniFi Easy Encrypt installation and configuration
+
+- name: Download UniFi Easy Encrypt script
+  get_url:
+    url: "{{ unifi_easy_encrypt_script_url }}"
+    dest: "{{ unifi_easy_encrypt_script_path }}"
+    mode: '0755'
+    owner: root
+    group: root
+    timeout: 60
+  register: script_download
+
+- name: Build UniFi Easy Encrypt command arguments
+  set_fact:
+    unifi_easy_encrypt_args: >-
+      {{ '--skip' if unifi_easy_encrypt_skip | bool else '' }}
+      {{ '--email ' + unifi_easy_encrypt_email if unifi_easy_encrypt_email else '' }}
+      {{ '--fqdn ' + unifi_easy_encrypt_fqdn if unifi_easy_encrypt_fqdn else '' }}
+      {{ '--external-dns ' + unifi_easy_encrypt_external_dns if unifi_easy_encrypt_external_dns else '' }}
+      {{ '--server-ip ' + unifi_easy_encrypt_server_ip if unifi_easy_encrypt_server_ip else '' }}
+      {{ '--v6' if unifi_easy_encrypt_ipv6 | bool else '' }}
+      {{ '--dns-challenge' if unifi_easy_encrypt_dns_challenge | bool else '' }}
+      {{ '--dns-provider ' + unifi_easy_encrypt_dns_provider if unifi_easy_encrypt_dns_provider else '' }}
+      {{ '--dns-provider-credentials ' + unifi_easy_encrypt_dns_credentials if unifi_easy_encrypt_dns_credentials else '' }}
+      {{ '--force-renew' if unifi_easy_encrypt_force_renew | bool else '' }}
+      {{ '--custom-acme-server ' + unifi_easy_encrypt_custom_acme_server if unifi_easy_encrypt_custom_acme_server else '' }}
+      {{ '--retry ' + (unifi_easy_encrypt_retry | string) if unifi_easy_encrypt_retry else '' }}
+      {{ '--prevent-modify-firewall' if unifi_easy_encrypt_prevent_modify_firewall | bool else '' }}
+      {{ '--skip-network-application' if unifi_easy_encrypt_skip_network_application | bool else '' }}
+
+- name: Build configuration hash for idempotency check
+  set_fact:
+    unifi_easy_encrypt_config:
+      email: "{{ unifi_easy_encrypt_email }}"
+      fqdn: "{{ unifi_easy_encrypt_fqdn }}"
+      external_dns: "{{ unifi_easy_encrypt_external_dns }}"
+      server_ip: "{{ unifi_easy_encrypt_server_ip }}"
+      ipv6: "{{ unifi_easy_encrypt_ipv6 | bool }}"
+      dns_challenge: "{{ unifi_easy_encrypt_dns_challenge | bool }}"
+      dns_provider: "{{ unifi_easy_encrypt_dns_provider }}"
+
+- name: Check if configuration file exists
+  stat:
+    path: /etc/unifi-easy-encrypt-config.json
+  register: config_file
+
+- name: Read existing configuration
+  slurp:
+    src: /etc/unifi-easy-encrypt-config.json
+  register: existing_config_raw
+  when: config_file.stat.exists
+
+- name: Parse existing configuration
+  set_fact:
+    existing_config: "{{ existing_config_raw.content | b64decode | from_json }}"
+  when: config_file.stat.exists
+
+- name: Determine if script should run
+  set_fact:
+    should_run_script: >-
+      {{
+        unifi_easy_encrypt_run_after_install | bool and (
+          unifi_easy_encrypt_force_renew | bool or
+          not config_file.stat.exists or
+          existing_config != unifi_easy_encrypt_config
+        )
+      }}
+
+- name: Display UniFi Easy Encrypt execution decision
+  debug:
+    msg: >-
+      Script will {{ 'be executed' if should_run_script | bool else 'NOT be executed' }}
+      {% if should_run_script | bool %}
+      (Reason: {{ 'Force renew' if unifi_easy_encrypt_force_renew | bool
+                  else 'First installation' if not config_file.stat.exists
+                  else 'Configuration changed' }})
+      {% else %}
+      (Configuration unchanged, certificate already installed)
+      {% endif %}
+
+- name: Run UniFi Easy Encrypt script
+  shell: |
+    set -o pipefail
+    {{ unifi_easy_encrypt_script_path }} {{ unifi_easy_encrypt_args }} 2>&1 | tee /var/log/unifi-easy-encrypt-install.log
+  args:
+    executable: /bin/bash
+  register: unifi_easy_encrypt_output
+  when: should_run_script | bool
+  changed_when: "'Certificate has been installed successfully' in unifi_easy_encrypt_output.stdout"
+  failed_when: unifi_easy_encrypt_output.rc != 0
+
+- name: Save configuration to file
+  copy:
+    content: "{{ unifi_easy_encrypt_config | to_nice_json }}"
+    dest: /etc/unifi-easy-encrypt-config.json
+    mode: '0600'
+    owner: root
+    group: root
+  when: should_run_script | bool and unifi_easy_encrypt_output is succeeded
+
+- name: Display script execution result
+  debug:
+    msg: "{{ unifi_easy_encrypt_output.stdout_lines | default(['Script not executed - configuration unchanged']) }}"
+  when: should_run_script | bool
+
+- name: Create cron job for automatic certificate renewal
+  cron:
+    name: "UniFi Easy Encrypt - Certificate renewal"
+    job: "{{ unifi_easy_encrypt_script_path }} {{ unifi_easy_encrypt_args }} >> /var/log/unifi-easy-encrypt-cron.log 2>&1"
+    special_time: monthly
+    user: root
+    state: present
+  when: unifi_easy_encrypt_fqdn != ""
+
+- name: Display installation summary
+  debug:
+    msg:
+      - "UniFi Easy Encrypt has been installed successfully"
+      - "Script location: {{ unifi_easy_encrypt_script_path }}"
+      - "Log file: /var/log/unifi-easy-encrypt-install.log"
+      - "Cron log: /var/log/unifi-easy-encrypt-cron.log"
+      - ""
+      - "To manually run the script:"
+      - "  sudo {{ unifi_easy_encrypt_script_path }} {{ unifi_easy_encrypt_args }}"

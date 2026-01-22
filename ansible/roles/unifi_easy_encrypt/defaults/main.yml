@@ -1,0 +1,34 @@
+---
+# UniFi Easy Encrypt default variables
+
+# Enable or disable UniFi Easy Encrypt installation
+unifi_easy_encrypt_enabled: false
+
+# Script configuration
+unifi_easy_encrypt_script_url: "https://get.glennr.nl/unifi/extra/unifi-easy-encrypt.sh"
+unifi_easy_encrypt_script_path: "/usr/local/bin/unifi-easy-encrypt.sh"
+
+# Basic options
+unifi_easy_encrypt_skip: true  # Skip interactive prompts
+unifi_easy_encrypt_email: ""
+unifi_easy_encrypt_fqdn: ""
+
+# Network options
+unifi_easy_encrypt_external_dns: ""  # External DNS server (e.g., 1.1.1.1, 8.8.8.8)
+unifi_easy_encrypt_server_ip: ""     # Manually specify server IP
+unifi_easy_encrypt_ipv6: false       # Use IPv6 instead of IPv4
+
+# Certificate challenge options
+unifi_easy_encrypt_dns_challenge: false  # Use DNS challenge instead of HTTP
+unifi_easy_encrypt_dns_provider: ""      # DNS provider (cloudflare, ovh, route53, etc.)
+unifi_easy_encrypt_dns_credentials: ""   # Path to DNS provider credentials file
+
+# Advanced options
+unifi_easy_encrypt_force_renew: false              # Force certificate renewal
+unifi_easy_encrypt_custom_acme_server: ""          # Custom ACME server URL
+unifi_easy_encrypt_retry: 3                        # Number of retries on failure
+unifi_easy_encrypt_prevent_modify_firewall: false  # Don't modify firewall rules
+unifi_easy_encrypt_skip_network_application: false # Skip importing certs to Network app
+
+# Run immediately after installation
+unifi_easy_encrypt_run_after_install: false

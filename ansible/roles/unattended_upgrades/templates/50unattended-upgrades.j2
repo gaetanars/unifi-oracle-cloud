@@ -1,0 +1,16 @@
+// Unattended upgrades configuration
+// Managed by Ansible - DO NOT EDIT MANUALLY
+
+Unattended-Upgrade::Allowed-Origins {
+{% for origin in unattended_upgrades_origins_patterns %}
+    "{{ origin }}";
+{% endfor %}
+};
+
+Unattended-Upgrade::AutoFixInterruptedDpkg "{{ unattended_upgrades_autofix_interrupted_dpkg | string | lower }}";
+Unattended-Upgrade::MinimalSteps "{{ unattended_upgrades_minimal_steps | string | lower }}";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "{{ unattended_upgrades_remove_unused_kernel_packages | string | lower }}";
+Unattended-Upgrade::Remove-New-Unused-Dependencies "{{ unattended_upgrades_remove_new_unused_dependencies | string | lower }}";
+Unattended-Upgrade::Remove-Unused-Dependencies "{{ unattended_upgrades_remove_unused_dependencies | string | lower }}";
+Unattended-Upgrade::Automatic-Reboot "{{ unattended_upgrades_automatic_reboot | string | lower }}";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ unattended_upgrades_automatic_reboot_time }}";

@@ -1,0 +1,56 @@
+---
+# UFW firewall configuration
+
+- name: Install UFW
+  apt:
+    name: ufw
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Reset UFW to default state
+  community.general.ufw:
+    state: reset
+  when: ufw_reset | default(false) | bool
+
+- name: Set UFW default policies
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: "{{ ufw_default_incoming_policy }}" }
+    - { direction: 'outgoing', policy: "{{ ufw_default_outgoing_policy }}" }
+
+- name: Set UFW logging
+  community.general.ufw:
+    logging: "{{ ufw_logging }}"
+
+- name: Allow OpenSSH
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+    comment: "SSH - IP restrictions in OCI Security Lists"
+
+- name: Configure UniFi ports dynamically
+  community.general.ufw:
+    rule: "{{ 'allow' if item.value.enabled else 'deny' }}"
+    port: "{{ item.value.port }}"
+    proto: "{{ item.value.proto }}"
+    comment: "{{ item.value.comment }}"
+  loop: "{{ unifi_ports | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}: {{ item.value.port }}/{{ item.value.proto }} ({{ 'enabled' if item.value.enabled else 'disabled' }})"
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+  when: ufw_enabled | bool
+
+- name: Display UFW status
+  command: ufw status verbose
+  register: ufw_status
+  changed_when: false
+
+- name: Show UFW status
+  debug:
+    var: ufw_status.stdout_lines
