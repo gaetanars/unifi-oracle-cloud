@@ -1,6 +1,11 @@
 ---
 # Unattended upgrades configuration
 
+- name: Parse unattended_upgrades_origins_patterns if comma-separated string
+  set_fact:
+    unattended_upgrades_origins_patterns: "{{ unattended_upgrades_origins_patterns.split(',') }}"
+  when: unattended_upgrades_origins_patterns is string
+
 - name: Install unattended-upgrades package
   apt:
     name:

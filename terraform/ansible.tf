@@ -19,6 +19,9 @@ resource "ansible_host" "unifi_server" {
     auto_updates = var.auto_updates
     disable_ipv6 = var.disable_ipv6
 
+    # Unattended upgrades configuration
+    unattended_upgrades_origins_patterns = join(",", var.unattended_upgrades_origins)
+
     # UniFi OS Server
     unifi_os_server_download_url = var.unifi_os_server_download_url
 

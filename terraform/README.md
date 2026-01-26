@@ -121,6 +121,7 @@ No modules.
 | <a name="input_tenancy_ocid"></a> [tenancy\_ocid](#input\_tenancy\_ocid) | OCID of your tenancy | `string` | n/a | yes |
 | <a name="input_timezone"></a> [timezone](#input\_timezone) | Timezone for the server | `string` | `"Europe/Paris"` | no |
 | <a name="input_ubuntu_version"></a> [ubuntu\_version](#input\_ubuntu\_version) | Ubuntu version to use (e.g., 22.04, 24.04) | `string` | `"24.04"` | no |
+| <a name="input_unattended_upgrades_origins"></a> [unattended\_upgrades\_origins](#input\_unattended\_upgrades\_origins) | List of origins allowed for unattended upgrades. Use Ubuntu placeholders like ${distro\_id} and ${distro\_codename} | `list(string)` | <pre>[<br/>  "${distro_id}:${distro_codename}",<br/>  "${distro_id}:${distro_codename}-security",<br/>  "${distro_id}ESMApps:${distro_codename}-apps-security",<br/>  "${distro_id}ESM:${distro_codename}-infra-security"<br/>]</pre> | no |
 | <a name="input_unifi_easy_encrypt_email"></a> [unifi\_easy\_encrypt\_email](#input\_unifi\_easy\_encrypt\_email) | Email address for Let's Encrypt notifications | `string` | `""` | no |
 | <a name="input_unifi_easy_encrypt_enabled"></a> [unifi\_easy\_encrypt\_enabled](#input\_unifi\_easy\_encrypt\_enabled) | Enable UniFi Easy Encrypt for automatic Let's Encrypt SSL certificates | `bool` | `false` | no |
 | <a name="input_unifi_easy_encrypt_external_dns"></a> [unifi\_easy\_encrypt\_external\_dns](#input\_unifi\_easy\_encrypt\_external\_dns) | External DNS server to resolve the FQDN (e.g., 1.1.1.1, 8.8.8.8) | `string` | `""` | no |

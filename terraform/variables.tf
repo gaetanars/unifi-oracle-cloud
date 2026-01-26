@@ -133,6 +133,17 @@ variable "auto_updates" {
   default     = true
 }
 
+variable "unattended_upgrades_origins" {
+  description = "List of origins allowed for unattended upgrades. Use Ubuntu placeholders like $${distro_id} and $${distro_codename}"
+  type        = list(string)
+  default = [
+    "$${distro_id}:$${distro_codename}",
+    "$${distro_id}:$${distro_codename}-security",
+    "$${distro_id}ESMApps:$${distro_codename}-apps-security",
+    "$${distro_id}ESM:$${distro_codename}-infra-security"
+  ]
+}
+
 variable "disable_ipv6" {
   description = "Disable IPv6 on the server (optional, for stability)"
   type        = bool
