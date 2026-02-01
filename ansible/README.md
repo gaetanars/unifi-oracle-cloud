@@ -63,34 +63,40 @@ Installation de certificats SSL Let's Encrypt (optionnel) :
 
 ## 🚀 Utilisation
 
-### Exécution automatique via Terraform
+Il existe **deux façons** d'exécuter Ansible avec ce projet :
 
-L'inventaire et l'exécution du playbook sont gérés automatiquement par Terraform :
+### Méthode 1 : Via Terraform (automatique) 🚀
+
+L'inventaire et l'exécution du playbook sont gérés automatiquement par Terraform via la ressource `ansible_playbook` :
 
 ```bash
 cd terraform
 terraform apply
 ```
 
-Terraform va :
-1. Créer l'infrastructure Oracle Cloud
-2. Définir l'inventaire via les ressources `ansible_host` et `ansible_group`
-3. Exécuter le playbook automatiquement via `terraform_data` avec un provisioner `local-exec`
+**Ce qui se passe** :
+1. Terraform crée l'infrastructure Oracle Cloud
+2. Les ressources `ansible_host` et `ansible_group` définissent l'inventaire dans le state Terraform
+3. La ressource `ansible_playbook` exécute automatiquement le playbook avec :
+   - Inventaire temporaire créé depuis les ressources Terraform
+   - Variables passées via `extra_vars` depuis `ansible_host.variables`
+   - Exécution à chaque apply (grâce à `replayable = true`)
 
-**Inventaire dynamique** : L'inventaire est lu depuis le state Terraform via le plugin `cloud.terraform.terraform_provider`. Les ressources `ansible_host` et `ansible_group` définies dans Terraform sont automatiquement disponibles dans l'inventaire Ansible.
+**Avantages** :
+- ✅ Tout-en-un : une seule commande pour infrastructure + configuration
+- ✅ Variables automatiquement synchronisées entre Terraform et Ansible
+- ✅ Pas besoin d'exécuter ansible-playbook manuellement
+- ✅ Idéal pour les déploiements automatisés
 
-### Exécution manuelle
+### Méthode 2 : Manuellement avec ansible-playbook 🔧
 
-Si vous souhaitez exécuter Ansible manuellement :
+Si vous souhaitez exécuter Ansible indépendamment de Terraform (par exemple pour tester des changements) :
 
 ```bash
 cd ansible
 
 # Installer les dépendances (incluant la collection cloud.terraform)
 ansible-galaxy collection install -r requirements.yml
-
-# L'inventaire est lu dynamiquement depuis le state Terraform
-# Pas besoin de fichier hosts.yml !
 
 # Exécuter le playbook complet
 ansible-playbook playbook.yml
@@ -106,7 +112,18 @@ ansible-playbook playbook.yml --check
 ansible-inventory --list
 ```
 
-**Note** : L'inventaire est lu dynamiquement depuis `inventory/terraform.yml` qui utilise le plugin `cloud.terraform.terraform_provider`. Ce plugin lit les ressources `ansible_host` et `ansible_group` directement depuis le state Terraform.
+**Comment ça fonctionne** :
+- L'inventaire est lu dynamiquement depuis `inventory/terraform.yml`
+- Le plugin `cloud.terraform.terraform_provider` lit les ressources `ansible_host` et `ansible_group` directement depuis le **state Terraform**
+- Toutes les variables définies dans `ansible_host.variables` sont disponibles
+
+**Avantages** :
+- ✅ Plus rapide si vous voulez juste reconfigurer l'application
+- ✅ Permet de tester des rôles spécifiques avec `--tags`
+- ✅ Utilise le même inventaire que Terraform (via le state)
+- ✅ Idéal pour le développement et le debugging
+
+**Note importante** : Les deux méthodes utilisent le **même inventaire** (lu depuis le state Terraform). La seule différence est qui exécute le playbook : Terraform automatiquement ou vous manuellement.
 
 ## 🔧 Configuration
 

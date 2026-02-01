@@ -7,6 +7,7 @@ python = "3.12"
 pipx = "latest"
 ansible = "13.2.0"
 pre-commit = "latest"
+terraform-docs = "latest"
 
 [env]
 _.file = ".env"
@@ -165,6 +166,10 @@ run = """
   echo ""
   echo "📋 Follow the instructions above to complete backend configuration."
 """
+
+[tasks.docs]
+description = "Update Terraform documentation with terraform-docs"
+run = "cd terraform && terraform-docs markdown table --output-file README.md --output-mode inject ."
 
 [tasks.setup]
 description = "Initial setup - run this first"

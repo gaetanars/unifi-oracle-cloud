@@ -4,7 +4,7 @@
 # It is executed by Terraform after infrastructure provisioning
 
 - name: Configure UniFi OS Server
-  hosts: unifi_servers
+  hosts: unifi-network-server
   become: true
   gather_facts: true
 
