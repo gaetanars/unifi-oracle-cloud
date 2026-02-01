@@ -5,11 +5,13 @@ Infrastructure as Code pour déployer UniFi OS Server sur Oracle Cloud Always Fr
 ## Description
 
 Ce module Terraform provisionne :
+
 - Instance Oracle Cloud (VM.Standard.A1.Flex ou VM.Standard.E2.1.Micro)
 - Virtual Cloud Network (VCN) avec subnet public
 - IP publique réservée (Always Free)
 - Security Lists pour UniFi OS Server
-- Configuration Ansible via inventaire dynamique
+- Inventaire Ansible dynamique via `ansible_host`
+- Exécution automatique du playbook Ansible via la ressource `ansible_playbook`
 
 ## Utilisation
 
@@ -20,9 +22,32 @@ terraform init
 # Planifier les changements
 terraform plan
 
-# Appliquer
+# Appliquer (exécute aussi Ansible automatiquement)
 terraform apply
 ```
+
+**Note** : `terraform apply` exécute automatiquement le playbook Ansible grâce à la ressource `ansible_playbook` avec `replayable = true`. Cela signifie que chaque fois que vous exécutez `terraform apply`, Ansible reconfigure le serveur en fonction des variables définies dans `ansible_host`.
+
+## Exécution d'Ansible
+
+Deux méthodes sont disponibles :
+
+### 1. Via Terraform (automatique)
+
+```bash
+terraform apply
+```
+
+La ressource `ansible_playbook` exécute automatiquement le playbook avec l'inventaire créé depuis les ressources `ansible_host` et `ansible_group`.
+
+### 2. Manuellement avec ansible-playbook
+
+```bash
+cd ../ansible
+ansible-playbook playbook.yml
+```
+
+Utilise l'inventaire dynamique qui lit les ressources depuis le state Terraform via le plugin `cloud.terraform.terraform_provider`.
 
 ## Documentation générée automatiquement
 
@@ -42,8 +67,7 @@ La documentation des variables, outputs et ressources est générée automatique
 | Name | Version |
 |------|---------|
 | <a name="provider_ansible"></a> [ansible](#provider\_ansible) | 1.3.0 |
-| <a name="provider_oci"></a> [oci](#provider\_oci) | 7.30.0 |
-| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
+| <a name="provider_oci"></a> [oci](#provider\_oci) | 7.32.0 |
 
 ## Modules
 
@@ -53,8 +77,8 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [ansible_group.unifi_servers](https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/group) | resource |
 | [ansible_host.unifi_server](https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/host) | resource |
+| [ansible_playbook.configure_unifi](https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/playbook) | resource |
 | [oci_core_instance.unifi_instance](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_instance) | resource |
 | [oci_core_internet_gateway.unifi_ig](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_internet_gateway) | resource |
 | [oci_core_public_ip.unifi_public_ip_attachment](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_public_ip) | resource |
@@ -62,7 +86,6 @@ No modules.
 | [oci_core_security_list.unifi_sl](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_security_list) | resource |
 | [oci_core_subnet.unifi_subnet](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_subnet) | resource |
 | [oci_core_vcn.unifi_vcn](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn) | resource |
-| [terraform_data.run_ansible](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [oci_core_images.ubuntu_amd](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_images) | data source |
 | [oci_core_images.ubuntu_arm](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_images) | data source |
 | [oci_core_private_ips.unifi_private_ips](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_private_ips) | data source |

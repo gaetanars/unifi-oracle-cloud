@@ -29,7 +29,7 @@ Ce projet utilise une architecture en trois couches avec **Terraform et Ansible*
 1. **Terraform** : Gestion de l'infrastructure cloud (compute, network, storage)
    - Provisionnement des ressources Oracle Cloud
    - Définition de l'inventaire Ansible via `ansible_host` et `ansible_group`
-   - Orchestration de l'exécution Ansible via `terraform_data`
+   - Exécution automatique du playbook Ansible via la ressource `ansible_playbook`
 
 2. **Cloud-init** : Bootstrap minimal (Python, configuration de base)
 
@@ -297,9 +297,28 @@ cd terraform && terraform apply
 
 → Ansible installe et configure ddclient en **2 minutes** ✅
 
-### Exécuter uniquement Ansible
+### Deux façons d'exécuter Ansible
 
-Si vous voulez juste ré-exécuter la configuration Ansible sans toucher à Terraform :
+Vous avez deux méthodes pour exécuter la configuration Ansible :
+
+#### 1. Via Terraform (recommandé) 🚀
+
+La ressource `ansible_playbook` exécute automatiquement le playbook lors d'un `terraform apply` :
+
+```bash
+cd terraform
+terraform apply
+```
+
+**Avantages** :
+- ✅ Tout-en-un : infrastructure + configuration en une seule commande
+- ✅ Variables Terraform automatiquement passées à Ansible via `ansible_host`
+- ✅ Exécution à chaque apply (grâce à `replayable = true`)
+- ✅ Gestion centralisée de l'état
+
+#### 2. Manuellement avec ansible-playbook 🔧
+
+Pour ré-exécuter uniquement Ansible sans toucher à Terraform :
 
 ```bash
 # Via Mise (recommandé)
@@ -314,7 +333,12 @@ ansible-playbook playbook.yml --tags ufw
 ansible-inventory --list
 ```
 
-**Note** : Le plugin d'inventaire `cloud.terraform.terraform_provider` lit les hosts directement depuis le state Terraform. Pas besoin de fichier statique !
+**Avantages** :
+- ✅ Plus rapide si vous ne voulez que reconfigurer l'application
+- ✅ Permet de tester des changements Ansible sans Terraform
+- ✅ Utilise le même inventaire dynamique (lecture depuis le state Terraform)
+
+**Note** : Les deux méthodes utilisent l'inventaire dynamique qui lit les hosts depuis le state Terraform via le plugin `cloud.terraform.terraform_provider`. Pas besoin de fichier statique !
 
 ## 📖 Configuration détaillée
 

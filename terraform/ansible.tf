@@ -3,8 +3,7 @@
 
 # Define the instance in Ansible inventory
 resource "ansible_host" "unifi_server" {
-  name   = var.instance_display_name
-  groups = [ansible_group.unifi_servers.name]
+  name = var.instance_display_name
 
   # Connection settings
   variables = {
@@ -71,34 +70,25 @@ resource "ansible_host" "unifi_server" {
   ]
 }
 
-# Define the group for UniFi servers
-resource "ansible_group" "unifi_servers" {
-  name = "unifi_servers"
+# Execute the Ansible playbook using ansible_playbook resource
+# This replaces terraform_data and creates a temporary inventory with the host/group
+resource "ansible_playbook" "configure_unifi" {
+  # Path to the playbook
+  playbook = "${path.module}/../ansible/playbook.yml"
 
-  # Optional: Add group variables if needed
-  variables = {}
-}
+  # Target the host directly (the provider will create a temporary inventory)
+  name = ansible_host.unifi_server.name
 
-# Execute the Ansible playbook using terraform_data
-# This approach uses the dynamic inventory plugin which reads Terraform state
-resource "terraform_data" "run_ansible" {
-  # Trigger re-run when instance changes or on every apply
-  triggers_replace = {
-    instance_id = oci_core_instance.unifi_instance.id
-    always_run  = timestamp()
-  }
+  # Always run the playbook on every apply
+  replayable = true
 
-  provisioner "local-exec" {
-    command     = "cd ${path.module}/../ansible && ansible-playbook playbook.yml"
-    working_dir = path.module
-    environment = {
-      ANSIBLE_FORCE_COLOR = "True"
-    }
-  }
+  # Display verbosity level
+  verbosity = 1
+
+  extra_vars = ansible_host.unifi_server.variables
 
   depends_on = [
     ansible_host.unifi_server,
-    ansible_group.unifi_servers,
     oci_core_public_ip.unifi_public_ip_attachment
   ]
 }
