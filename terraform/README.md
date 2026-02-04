@@ -67,7 +67,7 @@ La documentation des variables, outputs et ressources est générée automatique
 | Name | Version |
 |------|---------|
 | <a name="provider_ansible"></a> [ansible](#provider\_ansible) | 1.3.0 |
-| <a name="provider_oci"></a> [oci](#provider\_oci) | 7.32.0 |
+| <a name="provider_oci"></a> [oci](#provider\_oci) | 7.30.0 |
 
 ## Modules
 

@@ -2,7 +2,7 @@
 // Managed by Ansible - DO NOT EDIT MANUALLY
 
 Unattended-Upgrade::Allowed-Origins {
-{% for origin in unattended_upgrades_origins_patterns %}
+{% for origin in unattended_upgrades_origins_patterns | from_json %}
     "{{ origin }}";
 {% endfor %}
 };
