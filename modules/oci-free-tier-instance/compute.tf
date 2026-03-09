@@ -56,28 +56,7 @@ resource "oci_core_instance" "this" {
 }
 
 # ============================================================================
-# Reserved Public IP (if public_ip_mode = "reserved")
-# ============================================================================
-
-resource "oci_core_public_ip" "reserved" {
-  count = local.create_reserved_ip ? 1 : 0
-
-  compartment_id = var.compartment_id
-  lifetime       = "RESERVED"
-  display_name   = var.reserved_ip_display_name
-
-  # Note: prevent_destroy cannot use variables in Terraform
-  # Uncomment and set to true manually in production if needed
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
-
-  freeform_tags = var.freeform_tags
-  defined_tags  = var.defined_tags
-}
-
-# ============================================================================
-# Assign Reserved IP to Primary VNIC Private IP
+# Reserved Public IP - Create and Assign to Primary VNIC Private IP
 # ============================================================================
 
 resource "oci_core_public_ip" "this" {
