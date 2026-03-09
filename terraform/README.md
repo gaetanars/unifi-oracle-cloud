@@ -4,14 +4,53 @@ Infrastructure as Code pour déployer UniFi OS Server sur Oracle Cloud Always Fr
 
 ## Description
 
-Ce module Terraform provisionne :
+Cette configuration Terraform utilise un **module réutilisable** (`modules/oci-free-tier-instance`) pour provisionner :
 
 - Instance Oracle Cloud (VM.Standard.A1.Flex ou VM.Standard.E2.1.Micro)
 - Virtual Cloud Network (VCN) avec subnet public
 - IP publique réservée (Always Free)
-- Security Lists pour UniFi OS Server
+- Security Lists pour tous les ports UniFi OS Server
 - Inventaire Ansible dynamique via `ansible_host`
 - Exécution automatique du playbook Ansible via la ressource `ansible_playbook`
+
+## Architecture
+
+```
+terraform/
+├── main.tf          # Module unifi_instance
+├── locals.tf        # Construction des règles de sécurité UniFi
+├── variables.tf     # Variables UniFi-specific
+├── outputs.tf       # Outputs (proxy vers module)
+├── ansible.tf       # Intégration Ansible
+└── versions.tf      # Providers
+
+modules/
+└── oci-free-tier-instance/
+    ├── README.md         # Documentation complète du module
+    ├── variables.tf      # Variables génériques du module
+    ├── outputs.tf        # Outputs du module
+    ├── main.tf           # Orchestration
+    ├── compute.tf        # Instance et IP
+    ├── network.tf        # VCN, subnet, IGW, RT
+    ├── security.tf       # Security Lists et NSGs
+    ├── storage.tf        # Block volumes
+    ├── backup.tf         # Backup policies
+    ├── data.tf           # Data sources
+    └── locals.tf         # Logique conditionnelle
+```
+
+## Module Universel
+
+Le module `oci-free-tier-instance` est **universel et réutilisable** pour d'autres projets Oracle Cloud Free Tier. Il supporte :
+
+- **3 modes réseau** : Full stack, existing network, hybrid
+- **3 modes IP publique** : Reserved, ephemeral, none
+- **Security Lists et NSGs** : Règles de sécurité flexibles
+- **Block volumes** : Stockage additionnel avec backups
+- **Cloud-init** : Initialisation via templates
+- **Multiple VNICs** : Interfaces réseau secondaires
+
+Voir [modules/oci-free-tier-instance/README.md](../modules/oci-free-tier-instance/README.md) pour la documentation complète.
 
 ## Utilisation
 
@@ -49,6 +88,41 @@ ansible-playbook playbook.yml
 
 Utilise l'inventaire dynamique qui lit les ressources depuis le state Terraform via le plugin `cloud.terraform.terraform_provider`.
 
+## Migration vers le Module
+
+Cette configuration a été refactorisée pour utiliser le module universel `oci-free-tier-instance`. Les avantages :
+
+### Avant (code original)
+- ~350 lignes de code dans `compute.tf`, `network.tf`, `data.tf`
+- Logique réseau et sécurité imbriquée dans des dynamic blocks complexes
+- Difficile à réutiliser pour d'autres projets
+
+### Après (avec module)
+- ~100 lignes de code dans `main.tf` et `locals.tf`
+- Logique réseau abstraite dans le module
+- Module réutilisable pour tout projet OCI Free Tier
+- Plus facile à maintenir et à comprendre
+
+### Moved Blocks
+
+Le fichier `main.tf` contient des `moved` blocks qui assurent que Terraform reconnait les ressources refactorisées comme des déplacements plutôt que des suppressions/créations. Cela garantit **zéro downtime** lors de la migration.
+
+```hcl
+moved {
+  from = oci_core_instance.unifi_instance
+  to   = module.unifi_instance.oci_core_instance.instance
+}
+```
+
+### Fichiers Supprimés
+
+Les fichiers suivants ont été supprimés car leur logique est maintenant dans le module :
+- `compute.tf` → `modules/oci-free-tier-instance/compute.tf`
+- `network.tf` → `modules/oci-free-tier-instance/network.tf`
+- `data.tf` → `modules/oci-free-tier-instance/data.tf`
+
+Des backups sont disponibles dans `.backup/` si nécessaire.
+
 ## Documentation générée automatiquement
 
 La documentation des variables, outputs et ressources est générée automatiquement par `terraform-docs`.
@@ -67,11 +141,12 @@ La documentation des variables, outputs et ressources est générée automatique
 | Name | Version |
 |------|---------|
 | <a name="provider_ansible"></a> [ansible](#provider\_ansible) | 1.3.0 |
-| <a name="provider_oci"></a> [oci](#provider\_oci) | 7.30.0 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | ../modules/oci-free-tier-instance | n/a |
 
 ## Resources
 
@@ -79,19 +154,6 @@ No modules.
 |------|------|
 | [ansible_host.unifi_server](https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/host) | resource |
 | [ansible_playbook.configure_unifi](https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/playbook) | resource |
-| [oci_core_instance.unifi_instance](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_instance) | resource |
-| [oci_core_internet_gateway.unifi_ig](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_internet_gateway) | resource |
-| [oci_core_public_ip.unifi_public_ip_attachment](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_public_ip) | resource |
-| [oci_core_route_table.unifi_rt](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_route_table) | resource |
-| [oci_core_security_list.unifi_sl](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_security_list) | resource |
-| [oci_core_subnet.unifi_subnet](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_subnet) | resource |
-| [oci_core_vcn.unifi_vcn](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn) | resource |
-| [oci_core_images.ubuntu_amd](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_images) | data source |
-| [oci_core_images.ubuntu_arm](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_images) | data source |
-| [oci_core_private_ips.unifi_private_ips](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_private_ips) | data source |
-| [oci_core_vnic.unifi_instance_vnic](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_vnic) | data source |
-| [oci_core_vnic_attachments.unifi_vnic_attachment](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/core_vnic_attachments) | data source |
-| [oci_identity_availability_domains.ads](https://registry.terraform.io/providers/oracle/oci/latest/docs/data-sources/identity_availability_domains) | data source |
 
 ## Inputs
 

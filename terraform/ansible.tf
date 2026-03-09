@@ -7,7 +7,7 @@ resource "ansible_host" "unifi_server" {
 
   # Connection settings
   variables = {
-    ansible_host                 = oci_core_public_ip.unifi_public_ip_attachment.ip_address
+    ansible_host                 = module.unifi_instance.instance_public_ip
     ansible_user                 = "ubuntu"
     ansible_ssh_private_key_file = replace(pathexpand(var.ssh_public_key_path), ".pub", "")
     ansible_python_interpreter   = "/usr/bin/python3"
@@ -65,8 +65,7 @@ resource "ansible_host" "unifi_server" {
   }
 
   depends_on = [
-    oci_core_instance.unifi_instance,
-    oci_core_public_ip.unifi_public_ip_attachment
+    module.unifi_instance
   ]
 }
 
@@ -89,6 +88,6 @@ resource "ansible_playbook" "configure_unifi" {
 
   depends_on = [
     ansible_host.unifi_server,
-    oci_core_public_ip.unifi_public_ip_attachment
+    module.unifi_instance
   ]
 }
