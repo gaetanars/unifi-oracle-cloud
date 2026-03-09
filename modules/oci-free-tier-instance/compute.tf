@@ -2,7 +2,7 @@
 # Compute Instance
 # ============================================================================
 
-resource "oci_core_instance" "instance" {
+resource "oci_core_instance" "this" {
   compartment_id      = var.compartment_id
   availability_domain = local.availability_domain
   display_name        = var.display_name
@@ -59,7 +59,7 @@ resource "oci_core_instance" "instance" {
 # Reserved Public IP (if public_ip_mode = "reserved")
 # ============================================================================
 
-resource "oci_core_public_ip" "reserved_ip" {
+resource "oci_core_public_ip" "reserved" {
   count = local.create_reserved_ip ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -80,7 +80,7 @@ resource "oci_core_public_ip" "reserved_ip" {
 # Assign Reserved IP to Primary VNIC Private IP
 # ============================================================================
 
-resource "oci_core_public_ip" "reserved_ip_assignment" {
+resource "oci_core_public_ip" "this" {
   count = local.create_reserved_ip ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -98,7 +98,7 @@ resource "oci_core_public_ip" "reserved_ip_assignment" {
   defined_tags  = var.defined_tags
 
   depends_on = [
-    oci_core_instance.instance,
+    oci_core_instance.this,
     data.oci_core_private_ips.primary_vnic_private_ips
   ]
 }
@@ -110,7 +110,7 @@ resource "oci_core_public_ip" "reserved_ip_assignment" {
 resource "oci_core_vnic_attachment" "secondary_vnics" {
   for_each = { for idx, vnic in var.secondary_vnics : idx => vnic }
 
-  instance_id  = oci_core_instance.instance.id
+  instance_id  = oci_core_instance.this.id
   display_name = each.value.display_name
 
   create_vnic_details {
@@ -122,6 +122,6 @@ resource "oci_core_vnic_attachment" "secondary_vnics" {
   }
 
   depends_on = [
-    oci_core_instance.instance
+    oci_core_instance.this
   ]
 }

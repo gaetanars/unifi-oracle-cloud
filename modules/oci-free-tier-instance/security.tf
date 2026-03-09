@@ -2,7 +2,7 @@
 # Security List
 # ============================================================================
 
-resource "oci_core_security_list" "security_list" {
+resource "oci_core_security_list" "this" {
   count = local.create_security_list ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -89,7 +89,7 @@ resource "oci_core_security_list" "security_list" {
 # Network Security Group (NSG)
 # ============================================================================
 
-resource "oci_core_network_security_group" "nsg" {
+resource "oci_core_network_security_group" "this" {
   count = var.create_nsg ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -107,7 +107,7 @@ resource "oci_core_network_security_group" "nsg" {
 resource "oci_core_network_security_group_security_rule" "nsg_rules" {
   for_each = var.create_nsg ? { for idx, rule in var.nsg_rules : idx => rule } : {}
 
-  network_security_group_id = oci_core_network_security_group.nsg[0].id
+  network_security_group_id = oci_core_network_security_group.this[0].id
   direction                 = each.value.direction
   protocol                  = each.value.protocol
 

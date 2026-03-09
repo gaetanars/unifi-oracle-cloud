@@ -16,7 +16,7 @@ data "oci_core_volume_backup_policies" "boot_volume_policies" {
 resource "oci_core_volume_backup_policy_assignment" "boot_volume_backup" {
   count = var.boot_volume_backup_policy != null ? 1 : 0
 
-  asset_id = oci_core_instance.instance.boot_volume_id
+  asset_id = oci_core_instance.this.boot_volume_id
   policy_id = (
     # If backup_policy is "bronze", "silver", or "gold", find the OCID from predefined policies
     contains(["bronze", "silver", "gold"], var.boot_volume_backup_policy) ?
@@ -28,6 +28,6 @@ resource "oci_core_volume_backup_policy_assignment" "boot_volume_backup" {
   )
 
   depends_on = [
-    oci_core_instance.instance
+    oci_core_instance.this
   ]
 }

@@ -2,7 +2,7 @@
 # Virtual Cloud Network (VCN)
 # ============================================================================
 
-resource "oci_core_vcn" "vcn" {
+resource "oci_core_vcn" "this" {
   count = local.create_vcn ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -18,7 +18,7 @@ resource "oci_core_vcn" "vcn" {
 # Internet Gateway
 # ============================================================================
 
-resource "oci_core_internet_gateway" "igw" {
+resource "oci_core_internet_gateway" "this" {
   count = local.create_igw ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -34,7 +34,7 @@ resource "oci_core_internet_gateway" "igw" {
 # Route Table
 # ============================================================================
 
-resource "oci_core_route_table" "route_table" {
+resource "oci_core_route_table" "this" {
   count = local.create_subnet ? 1 : 0
 
   compartment_id = var.compartment_id
@@ -45,7 +45,7 @@ resource "oci_core_route_table" "route_table" {
   dynamic "route_rules" {
     for_each = local.create_igw ? [1] : []
     content {
-      network_entity_id = oci_core_internet_gateway.igw[0].id
+      network_entity_id = oci_core_internet_gateway.this[0].id
       destination       = "0.0.0.0/0"
       destination_type  = "CIDR_BLOCK"
       description       = "Route to Internet Gateway"
@@ -60,7 +60,7 @@ resource "oci_core_route_table" "route_table" {
 # Subnet
 # ============================================================================
 
-resource "oci_core_subnet" "subnet" {
+resource "oci_core_subnet" "this" {
   count = local.create_subnet ? 1 : 0
 
   compartment_id             = var.compartment_id
