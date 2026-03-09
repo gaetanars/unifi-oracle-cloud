@@ -124,15 +124,12 @@ locals {
   # Default SSH rule (if allowed_ssh_cidrs is not empty)
   default_ssh_rules = length(var.allowed_ssh_cidrs) > 0 ? [
     for cidr in var.allowed_ssh_cidrs : {
-      protocol    = "6" # TCP
-      source      = cidr
-      source_type = "CIDR_BLOCK"
-      stateless   = false
-      description = "SSH access"
-      tcp_options = {
-        min = 22
-        max = 22
-      }
+      protocol     = "6" # TCP
+      source       = cidr
+      source_type  = "CIDR_BLOCK"
+      stateless    = false
+      description  = "SSH access"
+      tcp_options  = { min = 22, max = 22 }
       udp_options  = null
       icmp_options = null
     }
@@ -140,37 +137,41 @@ locals {
 
   # Default ICMP rule (if enabled)
   default_icmp_rules = var.enable_icmp ? [{
-    protocol    = "1" # ICMP
-    source      = "0.0.0.0/0"
-    source_type = "CIDR_BLOCK"
-    stateless   = false
-    description = "ICMP (ping)"
-    tcp_options = null
-    udp_options = null
-    icmp_options = {
-      type = 3
-      code = 4
-    }
+    protocol     = "1" # ICMP
+    source       = "0.0.0.0/0"
+    source_type  = "CIDR_BLOCK"
+    stateless    = false
+    description  = "ICMP (ping)"
+    tcp_options  = null
+    udp_options  = null
+    icmp_options = { type = 3, code = 4 }
     },
     {
-      protocol    = "1" # ICMP
-      source      = "0.0.0.0/0"
-      source_type = "CIDR_BLOCK"
-      stateless   = false
-      description = "ICMP (ping)"
-      tcp_options = null
-      udp_options = null
-      icmp_options = {
-        type = 8
-        code = null
-      }
+      protocol     = "1" # ICMP
+      source       = "0.0.0.0/0"
+      source_type  = "CIDR_BLOCK"
+      stateless    = false
+      description  = "ICMP (ping)"
+      tcp_options  = null
+      udp_options  = null
+      icmp_options = { type = 8, code = null }
   }] : []
 
   # Merge default rules with custom rules
+  # Normalize all rules to ensure consistent typing
   all_ingress_rules = concat(
     local.default_ssh_rules,
     local.default_icmp_rules,
-    var.ingress_security_rules
+    [for rule in var.ingress_security_rules : {
+      protocol     = rule.protocol
+      source       = rule.source
+      source_type  = lookup(rule, "source_type", "CIDR_BLOCK")
+      stateless    = lookup(rule, "stateless", false)
+      description  = lookup(rule, "description", "")
+      tcp_options  = lookup(rule, "tcp_options", null)
+      udp_options  = lookup(rule, "udp_options", null)
+      icmp_options = lookup(rule, "icmp_options", null)
+    }]
   )
 
   # Default egress rule: allow all
@@ -186,7 +187,19 @@ locals {
   }]
 
   # Use custom egress rules if provided, otherwise use default
-  all_egress_rules = length(var.egress_security_rules) > 0 ? var.egress_security_rules : local.default_egress_rules
+  # Normalize custom egress rules to ensure consistent typing
+  all_egress_rules = length(var.egress_security_rules) > 0 ? [
+    for rule in var.egress_security_rules : {
+      protocol         = rule.protocol
+      destination      = rule.destination
+      destination_type = lookup(rule, "destination_type", "CIDR_BLOCK")
+      stateless        = lookup(rule, "stateless", false)
+      description      = lookup(rule, "description", "")
+      tcp_options      = lookup(rule, "tcp_options", null)
+      udp_options      = lookup(rule, "udp_options", null)
+      icmp_options     = lookup(rule, "icmp_options", null)
+    }
+  ] : local.default_egress_rules
 }
 
 # ============================================================================
