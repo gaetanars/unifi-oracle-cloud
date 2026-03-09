@@ -16,15 +16,15 @@ locals {
   )
 
   # Select the VCN ID to use
-  vcn_id = local.create_vcn ? oci_core_vcn.vcn[0].id : var.vcn_id
+  vcn_id = local.create_vcn ? oci_core_vcn.this[0].id : var.vcn_id
 
   # Select the subnet ID to use
-  subnet_id = local.create_subnet ? oci_core_subnet.subnet[0].id : var.subnet_id
+  subnet_id = local.create_subnet ? oci_core_subnet.this[0].id : var.subnet_id
 
   # Select the route table ID to use
   route_table_id = (
     var.route_table_id != null ? var.route_table_id :
-    local.create_subnet ? oci_core_route_table.route_table[0].id :
+    local.create_subnet ? oci_core_route_table.this[0].id :
     null
   )
 }
@@ -199,13 +199,13 @@ locals {
 
   # Security list IDs to use
   security_list_ids = (
-    local.create_security_list ? [oci_core_security_list.security_list[0].id] :
+    local.create_security_list ? [oci_core_security_list.this[0].id] :
     var.security_list_ids
   )
 
   # NSG IDs to attach to VNIC (created NSG + provided NSGs)
   nsg_ids = concat(
-    var.create_nsg ? [oci_core_network_security_group.nsg[0].id] : [],
+    var.create_nsg ? [oci_core_network_security_group.this[0].id] : [],
     var.nsg_ids
   )
 }

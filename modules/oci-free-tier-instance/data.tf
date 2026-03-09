@@ -50,10 +50,10 @@ data "oci_core_images" "ubuntu_amd" {
 
 data "oci_core_vnic_attachments" "instance_vnics" {
   compartment_id      = var.compartment_id
-  instance_id         = oci_core_instance.instance.id
+  instance_id         = oci_core_instance.this.id
   availability_domain = local.availability_domain
 
-  depends_on = [oci_core_instance.instance]
+  depends_on = [oci_core_instance.this]
 }
 
 # ============================================================================
@@ -63,7 +63,7 @@ data "oci_core_vnic_attachments" "instance_vnics" {
 data "oci_core_vnic" "primary_vnic" {
   vnic_id = data.oci_core_vnic_attachments.instance_vnics.vnic_attachments[0].vnic_id
 
-  depends_on = [oci_core_instance.instance]
+  depends_on = [oci_core_instance.this]
 }
 
 # ============================================================================
@@ -73,5 +73,5 @@ data "oci_core_vnic" "primary_vnic" {
 data "oci_core_private_ips" "primary_vnic_private_ips" {
   vnic_id = data.oci_core_vnic.primary_vnic.id
 
-  depends_on = [oci_core_instance.instance]
+  depends_on = [oci_core_instance.this]
 }

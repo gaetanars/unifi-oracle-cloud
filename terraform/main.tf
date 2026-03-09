@@ -64,35 +64,35 @@ module "unifi_instance" {
 
 moved {
   from = oci_core_vcn.unifi_vcn
-  to   = module.unifi_instance.oci_core_vcn.vcn[0]
+  to   = module.unifi_instance.oci_core_vcn.this[0]
 }
 
 moved {
   from = oci_core_internet_gateway.unifi_ig
-  to   = module.unifi_instance.oci_core_internet_gateway.igw[0]
+  to   = module.unifi_instance.oci_core_internet_gateway.this[0]
 }
 
 moved {
   from = oci_core_route_table.unifi_rt
-  to   = module.unifi_instance.oci_core_route_table.route_table[0]
+  to   = module.unifi_instance.oci_core_route_table.this[0]
 }
 
 moved {
   from = oci_core_security_list.unifi_sl
-  to   = module.unifi_instance.oci_core_security_list.security_list[0]
+  to   = module.unifi_instance.oci_core_security_list.this[0]
 }
 
 moved {
   from = oci_core_subnet.unifi_subnet
-  to   = module.unifi_instance.oci_core_subnet.subnet[0]
+  to   = module.unifi_instance.oci_core_subnet.this[0]
 }
 
 moved {
   from = oci_core_instance.unifi_instance
-  to   = module.unifi_instance.oci_core_instance.instance
+  to   = module.unifi_instance.oci_core_instance.this
 }
 
 moved {
   from = oci_core_public_ip.unifi_public_ip_attachment
-  to   = module.unifi_instance.oci_core_public_ip.reserved_ip_assignment[0]
+  to   = module.unifi_instance.oci_core_public_ip.this[0]
 }

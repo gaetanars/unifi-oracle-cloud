@@ -15,7 +15,8 @@
       "WebFetch(domain:get.glennr.nl)",
       "Bash(ls:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(terraform validate:*)"
+      "Bash(terraform validate:*)",
+      "Bash(grep:*)"
     ]
   }
 }

@@ -23,7 +23,7 @@ resource "oci_core_volume_attachment" "block_volume_attachments" {
   for_each = { for idx, vol in var.block_volumes : idx => vol }
 
   attachment_type = lookup(each.value, "attachment_type", "paravirtualized")
-  instance_id     = oci_core_instance.instance.id
+  instance_id     = oci_core_instance.this.id
   volume_id       = oci_core_volume.block_volumes[each.key].id
 
   # Device path (optional)
@@ -37,7 +37,7 @@ resource "oci_core_volume_attachment" "block_volume_attachments" {
   )
 
   depends_on = [
-    oci_core_instance.instance,
+    oci_core_instance.this,
     oci_core_volume.block_volumes
   ]
 }
