@@ -127,6 +127,18 @@ variable "unifi_os_server_download_url" {
   default     = "https://fw-download.ubnt.com/data/unifi-os-server/df5b-linux-arm64-5.0.6-f35e944c-f4b6-4190-93a8-be61b96c58f4.6-arm64"
 }
 
+variable "source_type" {
+  description = "Boot source for the instance: 'image' (fresh install) or 'bootVolume' (reuse existing boot volume)"
+  type        = string
+  default     = "image"
+}
+
+variable "boot_volume_id" {
+  description = "OCID of the boot volume to reuse when source_type = 'bootVolume'"
+  type        = string
+  default     = null
+}
+
 variable "auto_updates" {
   description = "Enable automatic security updates"
   type        = bool
