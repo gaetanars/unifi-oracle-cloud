@@ -10,7 +10,7 @@ Déployez **UniFi OS Server** complet sur Oracle Cloud Always Free.
 - ✅ **Mises à jour de sécurité automatiques** - Quotidiennes via unattended-upgrades
 - ✅ **Infrastructure as Code** - Terraform + Ansible
 - ✅ **Configuration simplifiée** - Un seul fichier `.env`
-- ✅ **Pas de recréation de VM** - Modifications de config sans détruire l'infrastructure
+- ✅ **Données préservées** - Recréation de l'instance depuis le boot volume existant (cloud-init mis à jour sans perte de données)
 - ✅ **Idempotence** - `terraform apply` peut être exécuté plusieurs fois sans risque
 
 ### Stack technique

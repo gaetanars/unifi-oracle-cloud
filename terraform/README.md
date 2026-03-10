@@ -101,7 +101,7 @@ La documentation des variables, outputs et ressources est générée automatique
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | github.com/gaetanars/terraform-oci-free-tier-instance | v0.1.0 |
+| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | github.com/gaetanars/terraform-oci-free-tier-instance | v0.2.0 |
 
 ## Resources
 
@@ -117,6 +117,7 @@ La documentation des variables, outputs et ressources est générée automatique
 | <a name="input_allowed_ssh_cidrs"></a> [allowed\_ssh\_cidrs](#input\_allowed\_ssh\_cidrs) | List of CIDR blocks allowed to SSH | `list(string)` | <pre>[<br/>  "0.0.0.0/0"<br/>]</pre> | no |
 | <a name="input_allowed_unifi_cidrs"></a> [allowed\_unifi\_cidrs](#input\_allowed\_unifi\_cidrs) | List of CIDR blocks allowed to access UniFi ports (restrict to your network IPs for better security) | `list(string)` | <pre>[<br/>  "0.0.0.0/0"<br/>]</pre> | no |
 | <a name="input_auto_updates"></a> [auto\_updates](#input\_auto\_updates) | Enable automatic security updates | `bool` | `true` | no |
+| <a name="input_boot_volume_id"></a> [boot\_volume\_id](#input\_boot\_volume\_id) | OCID of the boot volume to reuse when source\_type = 'bootVolume' | `string` | `null` | no |
 | <a name="input_boot_volume_size_in_gbs"></a> [boot\_volume\_size\_in\_gbs](#input\_boot\_volume\_size\_in\_gbs) | Size of boot volume in GB (max 200 for Always Free) | `number` | `50` | no |
 | <a name="input_compartment_ocid"></a> [compartment\_ocid](#input\_compartment\_ocid) | OCID of the compartment | `string` | n/a | yes |
 | <a name="input_ddclient_cmd"></a> [ddclient\_cmd](#input\_ddclient\_cmd) | Command for IP detection when use=cmd (e.g., curl https://checkipv4.dedyn.io/) | `string` | `""` | no |
@@ -155,6 +156,7 @@ La documentation des variables, outputs et ressources est générée automatique
 | <a name="input_instance_shape"></a> [instance\_shape](#input\_instance\_shape) | Shape of the instance (Always Free: VM.Standard.A1.Flex or VM.Standard.E2.1.Micro) | `string` | `"VM.Standard.A1.Flex"` | no |
 | <a name="input_private_key_path"></a> [private\_key\_path](#input\_private\_key\_path) | Path to your private API key | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | Oracle Cloud region | `string` | `"eu-paris-1"` | no |
+| <a name="input_source_type"></a> [source\_type](#input\_source\_type) | Boot source for the instance: 'image' (fresh install) or 'bootVolume' (reuse existing boot volume) | `string` | `"image"` | no |
 | <a name="input_ssh_public_key_path"></a> [ssh\_public\_key\_path](#input\_ssh\_public\_key\_path) | Path to SSH public key | `string` | `"~/.ssh/id_rsa.pub"` | no |
 | <a name="input_subnet_cidr_block"></a> [subnet\_cidr\_block](#input\_subnet\_cidr\_block) | CIDR block for subnet | `string` | `"10.0.1.0/24"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources | `map(string)` | <pre>{<br/>  "Environment": "Production",<br/>  "ManagedBy": "Terraform",<br/>  "Project": "UniFi-Network"<br/>}</pre> | no |

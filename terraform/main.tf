@@ -6,7 +6,7 @@
 # ============================================================================
 
 module "unifi_instance" {
-  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.1.0"
+  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.2.0"
 
   # Required
   compartment_id = var.compartment_ocid
@@ -51,50 +51,13 @@ module "unifi_instance" {
   # Extended metadata (preserve lifecycle)
   extended_metadata = {}
 
+  # Boot volume preservation — DOIT être true avant toute recréation de l'instance
+  preserve_boot_volume = true
+
+  # Source : "image" (install fraîche) ou "bootVolume" (réutilise le volume existant)
+  source_type    = var.source_type
+  boot_volume_id = var.boot_volume_id
+
   # Tags
   freeform_tags = var.tags
-
-  lifecycle_ignore_changes = ["metadata"]
-}
-
-# ============================================================================
-# Moved Blocks - Resource Migration
-# ============================================================================
-# These blocks ensure Terraform recognizes the refactored resources
-# as moves rather than deletions + creations, preventing downtime.
-# ============================================================================
-
-moved {
-  from = oci_core_vcn.unifi_vcn
-  to   = module.unifi_instance.oci_core_vcn.this[0]
-}
-
-moved {
-  from = oci_core_internet_gateway.unifi_ig
-  to   = module.unifi_instance.oci_core_internet_gateway.this[0]
-}
-
-moved {
-  from = oci_core_route_table.unifi_rt
-  to   = module.unifi_instance.oci_core_route_table.this[0]
-}
-
-moved {
-  from = oci_core_security_list.unifi_sl
-  to   = module.unifi_instance.oci_core_security_list.this[0]
-}
-
-moved {
-  from = oci_core_subnet.unifi_subnet
-  to   = module.unifi_instance.oci_core_subnet.this[0]
-}
-
-moved {
-  from = oci_core_instance.unifi_instance
-  to   = module.unifi_instance.oci_core_instance.this_ignore_metadata[0]
-}
-
-moved {
-  from = oci_core_public_ip.unifi_public_ip_attachment
-  to   = module.unifi_instance.oci_core_public_ip.this[0]
 }
