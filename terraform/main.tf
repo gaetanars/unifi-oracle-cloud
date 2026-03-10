@@ -6,7 +6,7 @@
 # ============================================================================
 
 module "unifi_instance" {
-  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.2.0"
+  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.4.1"
 
   # Required
   compartment_id = var.compartment_ocid
@@ -21,6 +21,7 @@ module "unifi_instance" {
   os_version              = var.ubuntu_version
 
   # Network (Full Stack)
+  create_internet_gateway       = true
   vcn_cidr_blocks               = [var.vcn_cidr_block]
   vcn_display_name              = "unifi-vcn"
   vcn_dns_label                 = "unifinet"

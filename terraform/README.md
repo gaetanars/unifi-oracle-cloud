@@ -101,7 +101,7 @@ La documentation des variables, outputs et ressources est générée automatique
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | github.com/gaetanars/terraform-oci-free-tier-instance | v0.2.0 |
+| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | github.com/gaetanars/terraform-oci-free-tier-instance | v0.4.1 |
 
 ## Resources
 
