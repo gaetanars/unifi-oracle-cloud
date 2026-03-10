@@ -4,7 +4,7 @@ Infrastructure as Code pour déployer UniFi OS Server sur Oracle Cloud Always Fr
 
 ## Description
 
-Cette configuration Terraform utilise un **module réutilisable** (`modules/oci-free-tier-instance`) pour provisionner :
+Cette configuration Terraform utilise un **module externe** ([`terraform-oci-free-tier-instance`](https://github.com/gaetanars/terraform-oci-free-tier-instance)) pour provisionner :
 
 - Instance Oracle Cloud (VM.Standard.A1.Flex ou VM.Standard.E2.1.Micro)
 - Virtual Cloud Network (VCN) avec subnet public
@@ -17,31 +17,20 @@ Cette configuration Terraform utilise un **module réutilisable** (`modules/oci-
 
 ```
 terraform/
-├── main.tf          # Module unifi_instance
+├── main.tf          # Appel du module externe unifi_instance
 ├── locals.tf        # Construction des règles de sécurité UniFi
 ├── variables.tf     # Variables UniFi-specific
 ├── outputs.tf       # Outputs (proxy vers module)
 ├── ansible.tf       # Intégration Ansible
 └── versions.tf      # Providers
-
-modules/
-└── oci-free-tier-instance/
-    ├── README.md         # Documentation complète du module
-    ├── variables.tf      # Variables génériques du module
-    ├── outputs.tf        # Outputs du module
-    ├── main.tf           # Orchestration
-    ├── compute.tf        # Instance et IP
-    ├── network.tf        # VCN, subnet, IGW, RT
-    ├── security.tf       # Security Lists et NSGs
-    ├── storage.tf        # Block volumes
-    ├── backup.tf         # Backup policies
-    ├── data.tf           # Data sources
-    └── locals.tf         # Logique conditionnelle
 ```
+
+Le module OCI est géré dans un dépôt dédié :
+[github.com/gaetanars/terraform-oci-free-tier-instance](https://github.com/gaetanars/terraform-oci-free-tier-instance)
 
 ## Module Universel
 
-Le module `oci-free-tier-instance` est **universel et réutilisable** pour d'autres projets Oracle Cloud Free Tier. Il supporte :
+Le module [`terraform-oci-free-tier-instance`](https://github.com/gaetanars/terraform-oci-free-tier-instance) est **universel et réutilisable** pour d'autres projets Oracle Cloud Free Tier. Il supporte :
 
 - **3 modes réseau** : Full stack, existing network, hybrid
 - **3 modes IP publique** : Reserved, ephemeral, none
@@ -50,7 +39,7 @@ Le module `oci-free-tier-instance` est **universel et réutilisable** pour d'aut
 - **Cloud-init** : Initialisation via templates
 - **Multiple VNICs** : Interfaces réseau secondaires
 
-Voir [modules/oci-free-tier-instance/README.md](../modules/oci-free-tier-instance/README.md) pour la documentation complète.
+Voir la [documentation du module](https://github.com/gaetanars/terraform-oci-free-tier-instance) pour les détails.
 
 ## Utilisation
 
@@ -88,40 +77,6 @@ ansible-playbook playbook.yml
 
 Utilise l'inventaire dynamique qui lit les ressources depuis le state Terraform via le plugin `cloud.terraform.terraform_provider`.
 
-## Migration vers le Module
-
-Cette configuration a été refactorisée pour utiliser le module universel `oci-free-tier-instance`. Les avantages :
-
-### Avant (code original)
-- ~350 lignes de code dans `compute.tf`, `network.tf`, `data.tf`
-- Logique réseau et sécurité imbriquée dans des dynamic blocks complexes
-- Difficile à réutiliser pour d'autres projets
-
-### Après (avec module)
-- ~100 lignes de code dans `main.tf` et `locals.tf`
-- Logique réseau abstraite dans le module
-- Module réutilisable pour tout projet OCI Free Tier
-- Plus facile à maintenir et à comprendre
-
-### Moved Blocks
-
-Le fichier `main.tf` contient des `moved` blocks qui assurent que Terraform reconnait les ressources refactorisées comme des déplacements plutôt que des suppressions/créations. Cela garantit **zéro downtime** lors de la migration.
-
-```hcl
-moved {
-  from = oci_core_instance.unifi_instance
-  to   = module.unifi_instance.oci_core_instance.instance
-}
-```
-
-### Fichiers Supprimés
-
-Les fichiers suivants ont été supprimés car leur logique est maintenant dans le module :
-- `compute.tf` → `modules/oci-free-tier-instance/compute.tf`
-- `network.tf` → `modules/oci-free-tier-instance/network.tf`
-- `data.tf` → `modules/oci-free-tier-instance/data.tf`
-
-Des backups sont disponibles dans `.backup/` si nécessaire.
 
 ## Documentation générée automatiquement
 
@@ -146,7 +101,7 @@ La documentation des variables, outputs et ressources est générée automatique
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | ../modules/oci-free-tier-instance | n/a |
+| <a name="module_unifi_instance"></a> [unifi\_instance](#module\_unifi\_instance) | github.com/gaetanars/terraform-oci-free-tier-instance | v0.1.0 |
 
 ## Resources
 
