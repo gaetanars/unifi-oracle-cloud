@@ -2,11 +2,11 @@
 # UniFi Network Server on Oracle Cloud Free Tier
 # ============================================================================
 # This configuration uses a reusable module to deploy UniFi OS Server.
-# See modules/oci-free-tier-instance/ for the module source.
+# Module source: github.com/gaetanars/terraform-oci-free-tier-instance
 # ============================================================================
 
 module "unifi_instance" {
-  source = "../modules/oci-free-tier-instance"
+  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.1.0"
 
   # Required
   compartment_id = var.compartment_ocid
@@ -53,6 +53,8 @@ module "unifi_instance" {
 
   # Tags
   freeform_tags = var.tags
+
+  lifecycle_ignore_changes = ["metadata"]
 }
 
 # ============================================================================
@@ -89,7 +91,7 @@ moved {
 
 moved {
   from = oci_core_instance.unifi_instance
-  to   = module.unifi_instance.oci_core_instance.this
+  to   = module.unifi_instance.oci_core_instance.this_ignore_metadata[0]
 }
 
 moved {
