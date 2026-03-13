@@ -6,7 +6,7 @@
 # ============================================================================
 
 module "unifi_instance" {
-  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.4.1"
+  source = "github.com/gaetanars/terraform-oci-free-tier-instance?ref=v0.5.0"
 
   # Required
   compartment_id = var.compartment_ocid
@@ -33,9 +33,9 @@ module "unifi_instance" {
   security_list_display_name    = "unifi-security-list"
 
   # Public IP (Reserved)
-  public_ip_mode           = "reserved"
-  reserved_ip_display_name = "unifi-reserved-ip"
-  # Note: To prevent IP destruction, uncomment lifecycle block in module's compute.tf
+  public_ip_mode              = "reserved"
+  reserved_ip_display_name    = "unifi-reserved-ip"
+  reserved_ip_prevent_destroy = true
 
   # Security
   allowed_ssh_cidrs      = var.allowed_ssh_cidrs
