@@ -9,7 +9,7 @@ Déployez **UniFi OS Server** complet sur Oracle Cloud Always Free.
 - ✅ **Conteneurs Podman** - Isolation et sécurité maximale
 - ✅ **Mises à jour de sécurité automatiques** - Quotidiennes via unattended-upgrades
 - ✅ **Infrastructure as Code** - Terraform + Ansible
-- ✅ **Configuration simplifiée** - Un seul fichier `.env`
+- ✅ **Configuration simplifiée** - Un seul fichier `terraform.tfvars`
 - ✅ **Données préservées** - Recréation de l'instance depuis le boot volume existant (cloud-init mis à jour sans perte de données)
 - ✅ **Idempotence** - `terraform apply` peut être exécuté plusieurs fois sans risque
 
@@ -113,11 +113,11 @@ Tout est automatique, aucune installation manuelle nécessaire !
 
 ```bash
 # Copier et éditer la configuration
-cp .env.example .env
-nano .env
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+nano terraform/terraform.tfvars
 ```
 
-Le fichier `.env` contient toute la configuration :
+Le fichier `terraform/terraform.tfvars` contient toute la configuration :
 
 - **Credentials Oracle Cloud** : tenancy_ocid, user_ocid, fingerprint, etc.
 - **Configuration instance** : shape, CPU, RAM, stockage
@@ -126,7 +126,7 @@ Le fichier `.env` contient toute la configuration :
 - **Configuration ports** : activation/désactivation individuelle des ports
 - **Mises à jour système** : activation des mises à jour de sécurité
 
-Voir `.env.example` pour la liste complète des variables disponibles.
+Voir `terraform/terraform.tfvars.example` pour la liste complète des variables disponibles.
 
 ### 3. (Optionnel mais recommandé) Backend distant pour tfstate
 
@@ -139,15 +139,15 @@ Voir `.env.example` pour la liste complète des variables disponibles.
 - ✅ **Gratuit** : 20 GB inclus dans Always Free
 
 ```bash
-# 1. Créer le bucket OCI Object Storage
+# 1. Configurer les credentials pour backend-setup
+cp terraform/backend-setup/terraform.tfvars.example terraform/backend-setup/terraform.tfvars
+nano terraform/backend-setup/terraform.tfvars
+
+# 2. Créer le bucket OCI Object Storage
 mise run backend-setup
 
-# 2. Dans la console OCI : User Settings → Customer Secret Keys → Generate
-#    Copier Access Key et Secret Key
-
-# 3. Ajouter à .env (décommenter et remplir) :
-#    AWS_ACCESS_KEY_ID=votre-access-key
-#    AWS_SECRET_ACCESS_KEY=votre-secret-key
+# 3. Dans la console OCI : User Settings → Customer Secret Keys → Generate
+#    Copier Access Key et Secret Key (pour authentification S3-compatible)
 
 # 4. Configurer backend.tf (copier les valeurs affichées par backend-setup)
 cp terraform/backend.tf.example terraform/backend.tf
@@ -256,10 +256,12 @@ Un des principaux avantages de l'architecture Terraform + Ansible est la possibi
 
 #### Activer le port HTTP pour Let's Encrypt
 
-```bash
-# Éditer .env
-echo 'TF_VAR_enable_port_http=true' >> .env
+```hcl
+# Éditer terraform/terraform.tfvars
+enable_port_http = true
+```
 
+```bash
 # Appliquer
 cd terraform && terraform apply
 ```
@@ -268,11 +270,12 @@ cd terraform && terraform apply
 
 #### Changer la version d'UniFi OS Server
 
-```bash
-# Éditer .env avec la nouvelle URL
-nano .env
-# Modifier : TF_VAR_unifi_os_server_download_url=https://...nouvelle-version...
+```hcl
+# Éditer terraform/terraform.tfvars
+unifi_os_server_download_url = "https://...nouvelle-version..."
+```
 
+```bash
 # Appliquer
 cd terraform && terraform apply
 ```
@@ -281,16 +284,16 @@ cd terraform && terraform apply
 
 #### Activer ddclient pour DNS dynamique
 
-```bash
-# Éditer .env
-cat >> .env << EOF
-TF_VAR_ddclient_enabled=true
-TF_VAR_ddclient_protocol=cloudflare
-TF_VAR_ddclient_zone=example.com
-TF_VAR_ddclient_hostname=unifi.example.com
-TF_VAR_ddclient_password=votre-token-api
-EOF
+```hcl
+# Éditer terraform/terraform.tfvars
+ddclient_enabled  = true
+ddclient_protocol = "cloudflare"
+ddclient_zone     = "example.com"
+ddclient_hostname = "unifi.example.com"
+ddclient_password = "votre-token-api"
+```
 
+```bash
 # Appliquer
 cd terraform && terraform apply
 ```
@@ -342,50 +345,50 @@ ansible-inventory --list
 
 ## 📖 Configuration détaillée
 
-### Variables principales dans .env
+### Variables principales dans terraform.tfvars
 
 #### Credentials Oracle Cloud (obligatoires)
 
-```bash
-TF_VAR_tenancy_ocid=ocid1.tenancy.oc1..aaaaa...
-TF_VAR_user_ocid=ocid1.user.oc1..aaaaa...
-TF_VAR_fingerprint=aa:bb:cc:dd:ee:ff...
-TF_VAR_private_key_path=~/.oci/oci_api_key.pem
-TF_VAR_region=eu-paris-1
-TF_VAR_compartment_ocid=ocid1.compartment.oc1..aaaaa...
-TF_VAR_ssh_public_key_path=~/.ssh/id_rsa.pub
+```hcl
+tenancy_ocid     = "ocid1.tenancy.oc1..aaaaa..."
+user_ocid        = "ocid1.user.oc1..aaaaa..."
+fingerprint      = "aa:bb:cc:dd:ee:ff..."
+private_key_path = "~/.oci/oci_api_key.pem"
+region           = "eu-paris-1"
+compartment_ocid = "ocid1.compartment.oc1..aaaaa..."
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
 ```
 
 #### Configuration instance (modifiables)
 
-```bash
-TF_VAR_instance_shape=VM.Standard.A1.Flex      # ARM ou VM.Standard.E2.1.Micro
-TF_VAR_instance_ocpus=2                        # 2-4 pour Always Free
-TF_VAR_instance_memory_in_gbs=12               # 12-24 pour Always Free
-TF_VAR_boot_volume_size_in_gbs=50              # 50-200 pour Always Free
+```hcl
+instance_shape          = "VM.Standard.A1.Flex"  # ARM ou VM.Standard.E2.1.Micro
+instance_ocpus          = 2                       # 2-4 pour Always Free
+instance_memory_in_gbs  = 12                      # 12-24 pour Always Free
+boot_volume_size_in_gbs = 50                      # 50-200 pour Always Free
 ```
 
 #### Configuration UniFi OS Server
 
-```bash
-TF_VAR_timezone=Europe/Paris
+```hcl
+timezone = "Europe/Paris"
 
 # URL de téléchargement UniFi OS Server (version ARM64)
 # Par défaut : Version 5.0.6
-TF_VAR_unifi_os_server_download_url=https://fw-download.ubnt.com/data/unifi-os-server/df5b-linux-arm64-5.0.6-f35e944c-f4b6-4190-93a8-be61b96c58f4.6-arm64
+unifi_os_server_download_url = "https://fw-download.ubnt.com/data/unifi-os-server/df5b-linux-arm64-5.0.6-f35e944c-f4b6-4190-93a8-be61b96c58f4.6-arm64"
 ```
 
 Pour installer une version différente de UniFi OS Server :
 
 1. Trouver l'URL de téléchargement sur le site Ubiquiti
-2. Mettre à jour `TF_VAR_unifi_os_server_download_url` dans `.env`
+2. Mettre à jour `unifi_os_server_download_url` dans `terraform/terraform.tfvars`
 3. Redéployer : `mise run apply`
 
 #### Automatisation
 
-```bash
-TF_VAR_ubuntu_version=24.04                    # Version Ubuntu (22.04 ou 24.04)
-TF_VAR_auto_updates=true                       # Mises à jour de sécurité auto
+```hcl
+ubuntu_version = "24.04"  # Version Ubuntu (22.04 ou 24.04)
+auto_updates   = true     # Mises à jour de sécurité auto
 ```
 
 ## 🔒 Sécurité
@@ -442,24 +445,24 @@ Les mises à jour de sécurité sont **activées par défaut** via `unattended-u
 
 **Configuration des ports** :
 
-Chaque port peut être activé/désactivé individuellement dans `.env` :
+Chaque port peut être activé/désactivé individuellement dans `terraform/terraform.tfvars` :
 
-```bash
+```hcl
 # Exemple : Activer le port HTTP pour Let's Encrypt (HTTP-01 challenge)
-TF_VAR_enable_port_http=true
+enable_port_http = true
 
 # Exemple : Désactiver le port console après configuration
-TF_VAR_enable_port_websockets=false
+enable_port_websockets = false
 
 # Activer les ports additionnels UniFi (unknown use)
-TF_VAR_enable_port_unifi_5005=true
-TF_VAR_enable_port_unifi_9543=true
-TF_VAR_enable_port_unifi_10003=true
-TF_VAR_enable_port_unifi_11084=true
+enable_port_unifi_5005  = true
+enable_port_unifi_9543  = true
+enable_port_unifi_10003 = true
+enable_port_unifi_11084 = true
 
 # Désactiver les ports optionnels
-TF_VAR_enable_port_remote_logging=false
-TF_VAR_enable_port_hotspot_8882=false
+enable_port_remote_logging = false
+enable_port_hotspot_8882   = false
 ```
 
 Puis appliquer :
@@ -470,10 +473,10 @@ mise run apply
 
 ### Restreindre l'accès SSH
 
-Pour limiter SSH à votre IP uniquement, dans `.env` :
+Pour limiter SSH à votre IP uniquement, dans `terraform/terraform.tfvars` :
 
-```bash
-TF_VAR_allowed_ssh_cidrs=["VOTRE_IP/32"]
+```hcl
+allowed_ssh_cidrs = ["VOTRE_IP/32"]
 ```
 
 Puis :
@@ -486,14 +489,14 @@ mise run apply
 
 **Recommandé pour la sécurité !** Limitez l'accès au port 8080 (adoption des appareils) aux IPs de votre réseau local uniquement.
 
-Dans `.env` :
+Dans `terraform/terraform.tfvars` :
 
-```bash
+```hcl
 # Autoriser uniquement votre réseau local
-TF_VAR_allowed_unifi_cidrs=["192.168.1.0/24"]
+allowed_unifi_cidrs = ["192.168.1.0/24"]
 
 # Ou plusieurs réseaux
-TF_VAR_allowed_unifi_cidrs=["192.168.1.0/24","10.0.0.0/8"]
+allowed_unifi_cidrs = ["192.168.1.0/24", "10.0.0.0/8"]
 ```
 
 Puis appliquer :
@@ -508,8 +511,8 @@ mise run apply
 
 **Aucun secret n'est committé** :
 
-- `.env` est gitignore
-- Fichier `.env.example` fourni comme template
+- `terraform.tfvars` est gitignore
+- Fichier `terraform/terraform.tfvars.example` fourni comme template
 - Les clés privées restent locales
 
 ## 🔧 Maintenance
@@ -545,11 +548,11 @@ sudo podman logs <container-id>
 
 ### Modifier la configuration
 
-Pour changer les ressources, dans `.env` :
+Pour changer les ressources, dans `terraform/terraform.tfvars` :
 
-```bash
-TF_VAR_instance_ocpus=4          # Max Always Free
-TF_VAR_instance_memory_in_gbs=24 # Max Always Free
+```hcl
+instance_ocpus         = 4   # Max Always Free
+instance_memory_in_gbs = 24  # Max Always Free
 ```
 
 Puis appliquer :
@@ -585,10 +588,10 @@ Les instances A1.Flex sont très demandées. Solutions :
 
 1. Réessayer plus tard
 2. Essayer un autre Availability Domain
-3. Utiliser la shape AMD dans `.env` :
+3. Utiliser la shape AMD dans `terraform/terraform.tfvars` :
 
-   ```bash
-   TF_VAR_instance_shape=VM.Standard.E2.1.Micro
+   ```hcl
+   instance_shape = "VM.Standard.E2.1.Micro"
    ```
 
 ### L'installation semble bloquée
@@ -648,11 +651,11 @@ Configuration recommandée (2 OCPU, 12 GB RAM) :
 - **500-1000 clients WiFi simultanés**
 - **Suite complète** : Network, Protect, Talk, Access
 
-Pour augmenter la capacité, modifier `.env` :
+Pour augmenter la capacité, modifier `terraform/terraform.tfvars` :
 
-```bash
-TF_VAR_instance_ocpus=4          # Max Always Free
-TF_VAR_instance_memory_in_gbs=24 # Max Always Free
+```hcl
+instance_ocpus         = 4   # Max Always Free
+instance_memory_in_gbs = 24  # Max Always Free
 ```
 
 ## 🤝 Contribution

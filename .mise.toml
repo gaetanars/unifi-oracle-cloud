@@ -9,9 +9,6 @@ ansible = "13.2.0"
 pre-commit = "latest"
 terraform-docs = "latest"
 
-[env]
-_.file = ".env"
-
 [tasks.ansible-setup]
 description = "Install Ansible collections"
 run = "cd ansible && ansible-galaxy collection install -r requirements.yml"
@@ -154,10 +151,10 @@ run = """
 
   cd terraform/backend-setup
 
-  # Check if .env exists
-  if [ ! -f .env ]; then
-    echo "Creating symlink to main .env..."
-    ln -s ../../.env .env
+  if [ ! -f terraform.tfvars ]; then
+    echo "❌ terraform/backend-setup/terraform.tfvars not found."
+    echo "   Copy terraform/backend-setup/terraform.tfvars.example to terraform/backend-setup/terraform.tfvars and fill in your values."
+    exit 1
   fi
 
   terraform init

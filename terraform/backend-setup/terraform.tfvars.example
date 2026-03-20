@@ -1,0 +1,18 @@
+# Backend Setup - Terraform Variables
+# Copy this file to terraform.tfvars and fill in your values
+# You can use the same OCI credentials as the main terraform directory
+
+# ============================================
+# Oracle Cloud Infrastructure Credentials
+# ============================================
+tenancy_ocid     = "ocid1.tenancy.oc1..your-tenancy-ocid"
+user_ocid        = "ocid1.user.oc1..your-user-ocid"
+fingerprint      = "your-api-key-fingerprint"
+private_key_path = "~/.oci/oci_api_key.pem"
+region           = "eu-paris-1"
+compartment_ocid = "ocid1.compartment.oc1..your-compartment-ocid"
+
+# ============================================
+# Backend Configuration
+# ============================================
+bucket_name = "unifi-terraform-state"

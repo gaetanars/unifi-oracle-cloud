@@ -1,5 +1,6 @@
-# Environment files
-.env
+# Terraform variables (contain secrets)
+terraform.tfvars
+**/terraform.tfvars
 
 # Terraform
 .terraform/
